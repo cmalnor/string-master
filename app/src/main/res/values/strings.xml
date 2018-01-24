@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">String_Master_0.1</string>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    <string-array name="strings">
+        <item>Low E String (82.41 Hz)</item>
+        <item>A String (110.00 Hz)</item>
+        <item>D String (146.83 Hz)</item>
+        <item>G String (196.00 Hz)</item>
+        <item>B String (246.94 Hz)</item>
+        <item>High E String (329.63 Hz)</item>
+    </string-array>
+</resources>
