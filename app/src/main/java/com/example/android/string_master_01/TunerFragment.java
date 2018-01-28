@@ -9,7 +9,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -29,7 +28,7 @@ import static android.content.Context.BIND_AUTO_CREATE;
  * Created by codymalnor on 12/25/17.
  */
 
-public class TunerFragment extends android.support.v4.app.Fragment implements AdapterView.OnItemSelectedListener{
+public class TunerFragment extends android.support.v4.app.Fragment{
 
     private static final String TAG = "GuitarTuner";
 
@@ -125,57 +124,25 @@ public class TunerFragment extends android.support.v4.app.Fragment implements Ad
         PdBase.openPatch(patchFile.getAbsolutePath());
     }
 
-    @Override
-    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-        Log.d(TAG, "onItemSelected: " + adapterView.getItemAtPosition(i));
-
-        switch (i){
-            case 0:
-                pitchView.setCenterPitch(40);
-                break;
-            case 1:
-                pitchView.setCenterPitch(45);
-                break;
-            case 2:
-                pitchView.setCenterPitch(50);
-                break;
-            case 3:
-                pitchView.setCenterPitch(55);
-                break;
-            case 4:
-                pitchView.setCenterPitch(59);
-                break;
-            case 5:
-                pitchView.setCenterPitch(64);
-                break;
-        }
-        Log.d(TAG, "Current pitch changed to: " + pitchView.getCenterPitch());
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> adapterView) {
-
-    }
-
     public void findClosestString(float x){
         if (x < 42.5){
             pitchView.setCenterPitch(40);
-            note.setText("E");
+            note.setText("E2");
         } else if (42.5 < x && x < 47.5){
             pitchView.setCenterPitch(45);
-            note.setText("A");
+            note.setText("A2");
         } else if (47.5 < x && x < 52.5){
             pitchView.setCenterPitch(50);
-            note.setText("D");
+            note.setText("D3");
         } else if (52.5 < x && x < 57.5){
             pitchView.setCenterPitch(55);
-            note.setText("G");
+            note.setText("G3");
         } else if (57.5 < x && x < 61.5){
             pitchView.setCenterPitch(59);
-            note.setText("B");
+            note.setText("B3");
         } else{
             pitchView.setCenterPitch(64);
-            note.setText("E");
+            note.setText("E4");
         }
     }
 }
