@@ -93,6 +93,7 @@ public class PitchView extends View {
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
                 setTunerPitch((float) valueAnimator.getAnimatedValue());
                 Log.d(TAG, "Current pitch value: " + getCurrentPitch());
+
             }
         });
         needleAnimation.start();
@@ -142,7 +143,8 @@ public class PitchView extends View {
     @Override
     protected void onDraw(Canvas canvas){
 
-        int span = 3;
+        int span = 1;
+
         //Draw midline
         float mid = this.width / 2;
         float startX = mid;
@@ -151,15 +153,11 @@ public class PitchView extends View {
         canvas.drawLine(mid, 10, mid, this.height - 10, this.paint);
 
         //Draw freq needle
-        float dx = (this.currentPitch - this.centerPitch) / 2;
-        if (span*(-1) < dx && dx < span){
-            this.paint.setStrokeWidth(5.0f);
-            this.paint.setColor(Color.BLUE);
-        } else {
-            this.paint.setStrokeWidth(20.0f);
-            this.paint.setColor(Color.RED);
-            dx = (dx < 0) ? -5 : 5;
-        }
+        float dx = (this.currentPitch - this.centerPitch);
+
+        this.paint.setStrokeWidth(5.0f);
+        this.paint.setColor(Color.BLUE);
+
         startX = mid + (dx * (mid/span));
         canvas.drawLine(startX, 10, startX, this.height - 10, this.paint);
     }

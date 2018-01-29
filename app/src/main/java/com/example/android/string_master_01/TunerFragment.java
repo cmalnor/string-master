@@ -9,7 +9,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import org.puredata.android.io.AudioParameters;
@@ -34,16 +33,17 @@ public class TunerFragment extends android.support.v4.app.Fragment{
 
     private PdUiDispatcher dispatcher;
     private com.example.android.string_master_01.PitchView pitchView;
-    private Spinner spinner;
     private TextView note;
     private PdService pdService = null;
+
+    private String[] notes = null;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState){
         View rootView = inflater.inflate(R.layout.tuner_layout, container, false);
         initGui(rootView);
-
+        notes = ((MainActivity)getActivity()).getNOTES();
         //Inflate the layout for this fragment
         return rootView;
     }
@@ -85,17 +85,12 @@ public class TunerFragment extends android.support.v4.app.Fragment{
 
         note = (TextView) view.findViewById(R.id.detected_note);
         note.setText("A");
-        //spinner = (Spinner) view.findViewById(R.id.string_spinner);
-        //ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
-        //        R.array.strings, android.R.layout.simple_spinner_dropdown_item);
-        //spinner.setAdapter(adapter);
-        //spinner.setOnItemSelectedListener(this);
-
     }
 
     private void initPd() throws IOException{
         //Configure the audio glue
         int sampleRate = AudioParameters.suggestSampleRate();
+        Log.i(TAG, "Sample Rate: " + sampleRate);
         pdService.initAudio(sampleRate, 1, 2, 50.0f);
         pdService.startAudio();
 
@@ -106,14 +101,13 @@ public class TunerFragment extends android.support.v4.app.Fragment{
         dispatcher.addListener("pitch", new PdListener.Adapter() {
             @Override
             public void receiveFloat(String source, float x) {
-                if (x > 0){
-                    pitchView.setNewPitch(x);
+                if (x > 30){
                     findClosestString(x);
                     Log.i(TAG, "pitch: " + x);
+                    pitchView.setNewPitch(x);
                 }
             }
         });
-
     }
 
     private void loadPatch() throws IOException{
@@ -125,24 +119,18 @@ public class TunerFragment extends android.support.v4.app.Fragment{
     }
 
     public void findClosestString(float x){
-        if (x < 42.5){
+        float midiNote = Math.round(x);
+        int noteOffset = (int)midiNote - 40;
+
+        if (midiNote < 40){
             pitchView.setCenterPitch(40);
-            note.setText("E2");
-        } else if (42.5 < x && x < 47.5){
-            pitchView.setCenterPitch(45);
-            note.setText("A2");
-        } else if (47.5 < x && x < 52.5){
-            pitchView.setCenterPitch(50);
-            note.setText("D3");
-        } else if (52.5 < x && x < 57.5){
-            pitchView.setCenterPitch(55);
-            note.setText("G3");
-        } else if (57.5 < x && x < 61.5){
-            pitchView.setCenterPitch(59);
-            note.setText("B3");
+            note.setText(notes[0]);
+        } else if (midiNote > 86){
+            pitchView.setCenterPitch(86);
+            note.setText(notes[46]);
         } else{
-            pitchView.setCenterPitch(64);
-            note.setText("E4");
+            pitchView.setCenterPitch(midiNote);
+            note.setText(notes[noteOffset]);
         }
     }
 }
