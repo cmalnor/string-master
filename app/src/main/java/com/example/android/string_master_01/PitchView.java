@@ -92,7 +92,7 @@ public class PitchView extends View {
             @Override
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
                 setTunerPitch((float) valueAnimator.getAnimatedValue());
-                Log.d(TAG, "Current pitch value: " + getCurrentPitch());
+                //Log.d(TAG, "Current pitch value: " + getCurrentPitch());
 
             }
         });
@@ -102,10 +102,12 @@ public class PitchView extends View {
         invalidate();
     }
 
+    // Return MIDI note value as a float for current reference pitch
     public float getCenterPitch(){
         return centerPitch;
     }
 
+    // Return MIDI note value as a float for current played pitch
     public float getCurrentPitch(){
         return currentPitch;
     }

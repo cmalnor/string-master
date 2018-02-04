@@ -103,7 +103,7 @@ public class TunerFragment extends android.support.v4.app.Fragment{
             public void receiveFloat(String source, float x) {
                 if (x > 30){
                     findClosestString(x);
-                    Log.i(TAG, "pitch: " + x);
+                    //Log.i(TAG, "pitch: " + x);
                     pitchView.setNewPitch(x);
                 }
             }
@@ -121,16 +121,17 @@ public class TunerFragment extends android.support.v4.app.Fragment{
     public void findClosestString(float x){
         float midiNote = Math.round(x);
         int noteOffset = (int)midiNote - 40;
-
-        if (midiNote < 40){
-            pitchView.setCenterPitch(40);
-            note.setText(notes[0]);
-        } else if (midiNote > 86){
-            pitchView.setCenterPitch(86);
-            note.setText(notes[46]);
-        } else{
-            pitchView.setCenterPitch(midiNote);
-            note.setText(notes[noteOffset]);
+        if (pitchView.getCenterPitch() != midiNote) {
+            if (midiNote < 40) {
+                pitchView.setCenterPitch(40);
+                note.setText(notes[0]);
+            } else if (midiNote > 86) {
+                pitchView.setCenterPitch(86);
+                note.setText(notes[46]);
+            } else {
+                pitchView.setCenterPitch(midiNote);
+                note.setText(notes[noteOffset]);
+            }
         }
     }
 }

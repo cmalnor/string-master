@@ -24,12 +24,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
 
-    public String[] getNOTES() {
-        return NOTES;
-    }
-
     // Notes on a guitar using Scientific Pitch Notation (SPN)
-    // MIDI notes 40 to
+    // MIDI notes 40 to 86
     final String[] NOTES = {
             "E2", "F2", "F#2", "G2", "G#2", "A2", "A#2", "B2", "C3", "C#3",
             "D3", "D#3", "E3", "F3", "F#3", "G3", "G#3", "A3", "A#3", "B3",
@@ -170,7 +166,32 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public String[] getNotes(){
+
+    public String[] getLowENotes() {
+        return lowENotes;
+    }
+
+    public String[] getANotes() {
+        return ANotes;
+    }
+
+    public String[] getDNotes() {
+        return DNotes;
+    }
+
+    public String[] getGNotes() {
+        return GNotes;
+    }
+
+    public String[] getBNotes() {
+        return BNotes;
+    }
+
+    public String[] getHighENotes() {
+        return highENotes;
+    }
+
+    public String[] getNOTES() {
         return NOTES;
     }
 }
