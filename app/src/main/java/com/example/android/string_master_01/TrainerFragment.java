@@ -10,7 +10,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 /**
  * Created by codymalnor on 1/14/18.
@@ -20,9 +19,9 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
 
     private Button startButton;
     private Button stopButton;
-    private TextView assignedNote;
     private Spinner chosenString;
     private String[] notes;
+    private GameInstance gameInstance;
 
     private String TAG = "TrainerFragment";
 
@@ -31,18 +30,17 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
 
         View rootView = inflater.inflate(R.layout.trainer_layout, container, false);
         startButton = (Button) rootView.findViewById(R.id.start_button);
-        assignedNote = (TextView) rootView.findViewById(R.id.assigned_note);
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                assignedNote.setText("ON");
+                gameInstance.start();
             }
         });
         stopButton = (Button) rootView.findViewById(R.id.stop_button);
         stopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                assignedNote.setText("OFF");
+                gameInstance.stop();
             }
         });
         chosenString = (Spinner) rootView.findViewById(R.id.string_choice);
@@ -50,6 +48,7 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
                 R.array.strings, android.R.layout.simple_spinner_dropdown_item);
         chosenString.setAdapter(adapter);
         chosenString.setOnItemSelectedListener(this);
+        gameInstance = new GameInstance(notes, rootView);
 
         return rootView;
     }
@@ -80,6 +79,7 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
                 notes = ((MainActivity)getActivity()).getLowENotes();
                 break;
         }
+        gameInstance.setNotes(notes);
     }
 
     @Override
