@@ -63,7 +63,6 @@ public class TunerFragment extends android.support.v4.app.Fragment{
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            //Will never be called...
         }
     };
 
