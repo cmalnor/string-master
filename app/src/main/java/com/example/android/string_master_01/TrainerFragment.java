@@ -36,6 +36,7 @@ import static android.content.Context.BIND_AUTO_CREATE;
 
 public class TrainerFragment extends Fragment implements AdapterView.OnItemSelectedListener{
 
+    private trainerPitchView testPitch;
     private Button startStopButton;
     private Spinner chosenString;
     private String[] notes;
@@ -46,6 +47,7 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
     private TextView countdownView;
     private PdUiDispatcher dispatcher;
     private PdService pdService = null;
+    private int noteCounter = 0;
     private android.os.Handler noteHandler = new Handler();
     private Random rand = new Random();
     private int counter = 0;
@@ -80,9 +82,11 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
                 if (startStopButton.getText() == "Stop"){
                     noteHandler.removeCallbacks(noteRunnable);
                     startStopButton.setText("Start");
+                    pdService.stopAudio();
                 } else{
                     noteHandler.post(noteRunnable);
                     startStopButton.setText("Stop");
+                    pdService.startAudio();
                 }
             }
         });
@@ -92,7 +96,7 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
         chosenString.setAdapter(adapter);
         chosenString.setOnItemSelectedListener(this);
         notes = ((MainActivity)getActivity()).getNOTES();
-        pitchView = (PitchView)rootView.findViewById(R.id.trainer_pitch_view);
+        pitchView = (trainerPitchView)rootView.findViewById(R.id.trainer_pitch_view);
         pitchView.setCenterPitch(45);
         //gameInstance = new GameInstance(notes, rootView);
 
@@ -168,7 +172,7 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
         int sampleRate = AudioParameters.suggestSampleRate();
         Log.i(TAG, "Sample Rate: " + sampleRate);
         pdService.initAudio(sampleRate, 1, 2, 50.0f);
-        pdService.startAudio();
+        //pdService.startAudio();
 
         //Create and install the dispatcher
         dispatcher = new PdUiDispatcher();
@@ -177,8 +181,16 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
         dispatcher.addListener("pitch", new PdListener.Adapter() {
             @Override
             public void receiveFloat(String source, float x) {
-                if (x > 30){
+                if (x > 40){
                     //Log.i(TAG, "pitch: " + x);
+                    if (x < pitchView.getCenterPitch()+1 && x > pitchView.getCenterPitch()-1){
+                        noteCounter++;
+                        if (noteCounter > 2){
+                            counter = 0;
+                        }
+                    } else {
+                        noteCounter = 0;
+                    }
                     pitchView.setNewPitch(x);
                 }
             }

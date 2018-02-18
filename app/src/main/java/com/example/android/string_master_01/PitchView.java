@@ -20,46 +20,24 @@ public class PitchView extends View {
     private float centerPitch, currentPitch, newPitch;
     private int width, height;
 
-    private final Paint paint = new Paint();
+    private Paint centerLinePaint;
+    private Paint pitchLinePaint;
     private ValueAnimator needleAnimation = new ValueAnimator();
 
 
     public PitchView(Context context) {
         super(context);
-        Log.d(TAG, "PitchView: 1");
-        needleAnimation.setDuration(100);
-        needleAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                setTunerPitch((float) valueAnimator.getAnimatedValue());
-                Log.d(TAG, "Current pitch value: " + getCurrentPitch());
-            }
-        });
+        init();
     }
+
     public PitchView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        Log.d(TAG, "PitchView: 2");
-        needleAnimation.setDuration(100);
-        needleAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                Log.d(TAG, "Current pitch value: ");
-
-                setTunerPitch((float) valueAnimator.getAnimatedValue());
-            }
-        });
+        init();
     }
+
     public PitchView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        Log.d(TAG, "PitchView: 3");
-        needleAnimation.setDuration(100);
-        needleAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                setTunerPitch((float) valueAnimator.getAnimatedValue());
-                Log.d(TAG, "Current pitch value: " + getCurrentPitch());
-            }
-        });
+        init();
     }
 
     //Sets note to tune to.
@@ -116,51 +94,56 @@ public class PitchView extends View {
         return newPitch;
     }
 
+    public Paint getCenterLinePaint(){
+        return centerLinePaint;
+    }
+
+    public Paint getPitchLinePaint(){
+        return pitchLinePaint;
+    }
+
+    public int getViewHeight(){
+        return height;
+    }
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         width = w;
         height = h;
     }
-/*
-    @Override
-    protected void onDraw(Canvas canvas) {
-        float halfWidth = width / 2;
-        paint.setStrokeWidth(6.0f);
-        paint.setColor(Color.GREEN);
-        canvas.drawLine(halfWidth, 0, halfWidth, height, paint);
-        float dx = (currentPitch - centerPitch) / 2;
-        if (-5 < dx && dx < 5) {
-            paint.setStrokeWidth(2.0f);
-            paint.setColor(Color.BLUE);
-        } else {
-            paint.setStrokeWidth(8.0f);
-            paint.setColor(Color.RED);
-            dx = (dx < 0) ? -5 : 5;
-        }
-        double phi = (dx / 5) * Math.PI / 4;
-        canvas.drawLine(halfWidth, height, halfWidth + (float) Math.sin(phi) * height * 0.9f,
-                height - (float) Math.cos(phi) * height * 0.9f, paint);
-    }*/
+
+    private void init(){
+        centerLinePaint = new Paint();
+        centerLinePaint.setStrokeWidth(10.0f);
+        centerLinePaint.setColor(Color.GREEN);
+
+        pitchLinePaint = new Paint();
+        pitchLinePaint.setStrokeWidth(5.0f);
+        pitchLinePaint.setColor(Color.BLUE);
+
+        needleAnimation.setDuration(100);
+        needleAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                //Log.d(TAG, "Current pitch value: " + getCurrentPitch());
+                setTunerPitch((float) valueAnimator.getAnimatedValue());
+            }
+        });
+    }
+
     @Override
     protected void onDraw(Canvas canvas){
-
-        int span = 1;
+        super.onDraw(canvas);
 
         //Draw midline
         float mid = this.width / 2;
         float startX = mid;
-        paint.setStrokeWidth(10.0f);
-        paint.setColor(Color.GREEN);
-        canvas.drawLine(mid, 10, mid, this.height - 10, this.paint);
+        canvas.drawLine(mid, 10, mid, this.height - 10, centerLinePaint);
 
         //Draw freq needle
         float dx = (this.currentPitch - this.centerPitch);
+        startX = mid + (dx * mid);
+        canvas.drawLine(startX, 10, startX, this.height - 10, pitchLinePaint);
 
-        this.paint.setStrokeWidth(5.0f);
-        this.paint.setColor(Color.BLUE);
-
-        startX = mid + (dx * (mid/span));
-        canvas.drawLine(startX, 10, startX, this.height - 10, this.paint);
     }
 }

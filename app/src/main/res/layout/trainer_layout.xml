@@ -36,7 +36,7 @@
             android:textSize="20sp"
             android:text="START"/>
     </LinearLayout>
-    <com.example.android.string_master_01.PitchView
+    <com.example.android.string_master_01.trainerPitchView
         android:id="@+id/trainer_pitch_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
