@@ -32,7 +32,7 @@ public class TunerFragment extends android.support.v4.app.Fragment{
     private static final String TAG = "GuitarTuner";
 
     private PdUiDispatcher dispatcher;
-    private com.example.android.string_master_01.PitchView pitchView;
+    private com.example.android.string_master_01.TunerPitchView pitchView;
     private TextView note;
     private PdService pdService = null;
 
@@ -79,7 +79,7 @@ public class TunerFragment extends android.support.v4.app.Fragment{
     }
 
     private void initGui(View view){
-        pitchView = (PitchView) view.findViewById(R.id.pitch_view);
+        pitchView = (TunerPitchView) view.findViewById(R.id.pitch_view);
         pitchView.setCenterPitch(45);
 
         note = (TextView) view.findViewById(R.id.detected_note);

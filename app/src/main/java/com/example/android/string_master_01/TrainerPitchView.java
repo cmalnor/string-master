@@ -6,15 +6,15 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.View;
 
 /**
  * Created by codymalnor on 2/12/18.
  */
 
-public class trainerPitchView extends PitchView {
+public class TrainerPitchView extends View {
 
     private Paint centerPaint;
-    private Paint sidePaint;
     private Paint leftPaint;
     private Paint rightPaint;
     private int padding;
@@ -22,15 +22,17 @@ public class trainerPitchView extends PitchView {
     Rect rightRect;
     Rect centerRect;
     private int width, height;
+    private float centerPitch;
+
 
     final String TAG = "trainerPitchView";
 
-    public trainerPitchView(Context context){
+    public TrainerPitchView(Context context){
         super(context);
         init();
     }
 
-    public trainerPitchView(Context context, AttributeSet attrs){
+    public TrainerPitchView(Context context, AttributeSet attrs){
         super(context, attrs);
         init();
     }
@@ -62,10 +64,10 @@ public class trainerPitchView extends PitchView {
                 width/2+width/10,
                 height-padding);
         Log.d(TAG, "init: height: " + height);
+        Log.d(TAG, "init: height: " + width);
 
     }
-
-    @Override
+    
     public void setNewPitch(float newPitch){
         if (newPitch > getCenterPitch()-1 && newPitch < getCenterPitch()+1){
             rightPaint.setColor(getResources().getColor(R.color.sidePaintOff));
@@ -84,19 +86,31 @@ public class trainerPitchView extends PitchView {
     }
 
     @Override
+    protected void onDraw(Canvas canvas){
+        super.onDraw(canvas);
+        canvas.drawRect(leftRect, leftPaint);
+        canvas.drawRect(rightRect, rightPaint);
+        canvas.drawRect(centerRect, centerPaint);
+        Log.d(TAG, "onDraw");
+    }
+
+    @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         width = w;
         height = h;
         init();
-        Log.d(TAG, "onSizeChanged: ");
     }
 
-    @Override
-    protected void onDraw(Canvas canvas){
-        canvas.drawRect(leftRect, leftPaint);
-        canvas.drawRect(rightRect, rightPaint);
-        canvas.drawRect(centerRect, centerPaint);
-        Log.d(TAG, "onDraw");
+    //Sets note to tune to.
+    //Input: MIDI VALUE of desired pitch
+    public void setCenterPitch(float centerPitch) {
+        this.centerPitch = centerPitch;
+        invalidate();
+    }
+
+    // Return MIDI note value as a float for current reference pitch
+    public float getCenterPitch(){
+        return centerPitch;
     }
 }

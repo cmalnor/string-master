@@ -3,6 +3,7 @@ package com.example.android.string_master_01;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -36,13 +37,12 @@ import static android.content.Context.BIND_AUTO_CREATE;
 
 public class TrainerFragment extends Fragment implements AdapterView.OnItemSelectedListener{
 
-    private trainerPitchView testPitch;
+    private TrainerPitchView testPitch;
     private Button startStopButton;
     private Spinner chosenString;
     private String[] notes;
     private int noteOffset;
-    private GameInstance gameInstance;
-    private PitchView pitchView;
+    private TrainerPitchView pitchView;
     private TextView assignedNote;
     private TextView countdownView;
     private PdUiDispatcher dispatcher;
@@ -56,18 +56,28 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
         public void run() {
             counter--;
             if (counter == -1){
-                counter = 5;
-                int nextNote = rand.nextInt(22)+noteOffset;
-                assignedNote.setText(notes[nextNote]);
-                pitchView.setCenterPitch(nextNote+40);
+                timeoutSound.start();
+                resetTimer();
+            } else if (noteCounter >= 2){
+                correctSound.start();
+                resetTimer();
             }
             countdownView.setText(Integer.toString(counter));
             noteHandler.postDelayed(this, 1000);
         }
     };
+    private MediaPlayer correctSound;
+    private MediaPlayer timeoutSound;
+
 
     private String TAG = "TrainerFragment";
 
+    private void resetTimer(){
+        counter = 5;
+        int nextNote = rand.nextInt(22)+noteOffset;
+        assignedNote.setText(notes[nextNote]);
+        pitchView.setCenterPitch(nextNote+40);
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
 
@@ -86,6 +96,10 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
                 } else{
                     noteHandler.post(noteRunnable);
                     startStopButton.setText("Stop");
+                    int nextNote = rand.nextInt(22)+noteOffset;
+                    assignedNote.setText(notes[nextNote]);
+                    pitchView.setCenterPitch(nextNote+40);
+                    counter = 6;
                     pdService.startAudio();
                 }
             }
@@ -96,9 +110,10 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
         chosenString.setAdapter(adapter);
         chosenString.setOnItemSelectedListener(this);
         notes = ((MainActivity)getActivity()).getNOTES();
-        pitchView = (trainerPitchView)rootView.findViewById(R.id.trainer_pitch_view);
+        pitchView = (TrainerPitchView)rootView.findViewById(R.id.trainer_pitch_view);
         pitchView.setCenterPitch(45);
-        //gameInstance = new GameInstance(notes, rootView);
+        correctSound = MediaPlayer.create(getActivity(), R.raw.correct);
+        timeoutSound = MediaPlayer.create(getActivity(), R.raw.out_of_time);
 
         return rootView;
     }
@@ -185,9 +200,6 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
                     //Log.i(TAG, "pitch: " + x);
                     if (x < pitchView.getCenterPitch()+1 && x > pitchView.getCenterPitch()-1){
                         noteCounter++;
-                        if (noteCounter > 2){
-                            counter = 0;
-                        }
                     } else {
                         noteCounter = 0;
                     }
