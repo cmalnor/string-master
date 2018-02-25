@@ -10,4 +10,5 @@
         <item>B</item>
         <item>High E</item>
     </string-array>
+    <string name="setting_number_frets">Number of frets to test: %1$d</string>
 </resources>

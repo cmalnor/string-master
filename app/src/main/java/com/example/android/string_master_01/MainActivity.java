@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     final int GOffset = 15;
     final int BOffset = 19;
     final int highEOffset = 24;
+    private int numberOfFrets = 22;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +94,9 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.nav_tuner:
                 fragmentClass = TunerFragment.class;
+                break;
+            case R.id.nav_settings:
+                fragmentClass = SettingsFragment.class;
                 break;
             default:
                 fragmentClass = TunerFragment.class;
@@ -164,6 +168,13 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public int getNumberOfFrets() {
+        return numberOfFrets;
+    }
+
+    public void setNumberOfFrets(int numberOfFrets) {
+        this.numberOfFrets = numberOfFrets;
+    }
 
     public int getLowEOffset() {
         return lowEOffset;

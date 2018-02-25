@@ -74,7 +74,7 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
 
     private void resetTimer(){
         counter = 5;
-        int nextNote = rand.nextInt(22)+noteOffset;
+        int nextNote = rand.nextInt(((MainActivity)getActivity()).getNumberOfFrets())+noteOffset;
         assignedNote.setText(notes[nextNote]);
         pitchView.setCenterPitch(nextNote+40);
     }
@@ -96,7 +96,7 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
                 } else{
                     noteHandler.post(noteRunnable);
                     startStopButton.setText("Stop");
-                    int nextNote = rand.nextInt(22)+noteOffset;
+                    int nextNote = rand.nextInt(((MainActivity)getActivity()).getNumberOfFrets())+noteOffset;
                     assignedNote.setText(notes[nextNote]);
                     pitchView.setCenterPitch(nextNote+40);
                     counter = 6;

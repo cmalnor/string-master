@@ -11,5 +11,9 @@
             android:id="@+id/nav_trainer"
             android:title="Trainer"
             />
+        <item
+            android:id="@+id/nav_settings"
+            android:title="Settings"
+            />
     </group>
 </menu>
