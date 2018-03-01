@@ -53,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
         nvDrawer = (NavigationView) findViewById(R.id.nvView);
 
         setupDrawerContent(nvDrawer);
+        if(savedInstanceState == null){
+        }
     }
 
     private ActionBarDrawerToggle setupDrawerToggle() {
@@ -79,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                        item.setChecked(true);
                         selectDrawerItem(item);
                         return true;
                     }
