@@ -13,7 +13,6 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_marginLeft="16dp"
-            android:layout_marginStart="16dp"
             android:layout_marginTop="12dp"
 
             android:src="@drawable/ic_guitar_acoustic"/>
@@ -33,8 +32,29 @@
             android:paddingStart="72dp"
             android:paddingLeft="72dp"
             android:paddingTop="5dp"
+            android:layout_marginRight="16dp"
             android:max="22"
             />
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="72dp">
+        <TextView
+            android:id="@+id/setting_game_length_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Length of game:"
+            android:layout_centerVertical="true"
+            android:paddingLeft="72dp"
+            android:textSize="16sp"/>
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="16dp"
+            android:layout_centerVertical="true"
+            android:inputType="number"
+            android:text="60"/>
     </RelativeLayout>
 
 </LinearLayout>

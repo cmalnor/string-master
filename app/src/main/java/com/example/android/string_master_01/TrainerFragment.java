@@ -47,20 +47,24 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
     private TextView countdownView;
     private PdUiDispatcher dispatcher;
     private PdService pdService = null;
-    private int noteCounter = 0;
     private android.os.Handler noteHandler = new Handler();
     private Random rand = new Random();
+    private int noteCounter = 0;
     private int counter = 0;
+    private int score = 0;
+    private TextView scoreView;
     private Runnable noteRunnable = new Runnable() {
         @Override
         public void run() {
             counter--;
-            if (counter == -1){
+            if (counter == 0){
                 timeoutSound.start();
-                resetTimer();
+                stopGame();
             } else if (noteCounter >= 2){
                 correctSound.start();
-                resetTimer();
+                score+=1;
+                scoreView.setText(Integer.toString(score));
+                getRandomNote();
             }
             countdownView.setText(Integer.toString(counter));
             noteHandler.postDelayed(this, 1000);
@@ -72,8 +76,7 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
 
     private String TAG = "TrainerFragment";
 
-    private void resetTimer(){
-        counter = 5;
+    private void getRandomNote(){
         int nextNote = rand.nextInt(((MainActivity)getActivity()).getNumberOfFrets())+noteOffset;
         assignedNote.setText(notes[nextNote]);
         pitchView.setCenterPitch(nextNote+40);
@@ -85,22 +88,16 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
         countdownView = (TextView) rootView.findViewById(R.id.countdown);
         assignedNote = (TextView) rootView.findViewById(R.id.assigned_note);
         startStopButton = (Button) rootView.findViewById(R.id.start_stop_button);
+        scoreView = (TextView) rootView.findViewById(R.id.trainer_score);
         startStopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //gameInstance.toggleGame();
                 if (startStopButton.getText() == "Stop"){
-                    noteHandler.removeCallbacks(noteRunnable);
-                    startStopButton.setText("Start");
-                    pdService.stopAudio();
+                    stopGame();
+                } else if (startStopButton.getText() == "Start"){
+                    startGame();
                 } else{
-                    noteHandler.post(noteRunnable);
-                    startStopButton.setText("Stop");
-                    int nextNote = rand.nextInt(((MainActivity)getActivity()).getNumberOfFrets())+noteOffset;
-                    assignedNote.setText(notes[nextNote]);
-                    pitchView.setCenterPitch(nextNote+40);
-                    counter = 6;
-                    pdService.startAudio();
+                    resetGame();
                 }
             }
         });
@@ -114,7 +111,7 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
         pitchView.setCenterPitch(45);
         correctSound = MediaPlayer.create(getActivity(), R.raw.correct);
         timeoutSound = MediaPlayer.create(getActivity(), R.raw.out_of_time);
-
+        resetGame();
         return rootView;
     }
 
@@ -144,7 +141,6 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
                 noteOffset = ((MainActivity)getActivity()).getLowEOffset();
                 break;
         }
-        //gameInstance.setNotes(notes);
     }
 
     @Override
@@ -179,7 +175,22 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
     @Override
     public void onStop(){
         super.onStop();
+        noteHandler.removeCallbacks(noteRunnable);
         getActivity().unbindService(pdConnection);
+    }
+
+    private void startGame(){
+        noteHandler.post(noteRunnable);
+        startStopButton.setText("Stop");
+        getRandomNote();
+        counter = 61;
+        pdService.startAudio();
+    }
+
+    private void stopGame(){
+        noteHandler.removeCallbacks(noteRunnable);
+        startStopButton.setText("Reset");
+        pdService.stopAudio();
     }
 
     private void initPd() throws IOException{
@@ -187,7 +198,6 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
         int sampleRate = AudioParameters.suggestSampleRate();
         Log.i(TAG, "Sample Rate: " + sampleRate);
         pdService.initAudio(sampleRate, 1, 2, 50.0f);
-        //pdService.startAudio();
 
         //Create and install the dispatcher
         dispatcher = new PdUiDispatcher();
@@ -215,5 +225,17 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
                 getResources().openRawResource(R.raw.tuner), dir, true);
         File patchFile = new File(dir, "tuner.pd");
         PdBase.openPatch(patchFile.getAbsolutePath());
+    }
+
+    private void scorePoint(){
+        score += 1;
+    }
+
+    private void resetGame(){
+        score = 0;
+        counter = 60;
+        countdownView.setText(Integer.toString(counter));
+        assignedNote.setText("Tap 'Start' to Begin");
+        startStopButton.setText("Start");
     }
 }

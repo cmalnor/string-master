@@ -47,7 +47,7 @@ public class TrainerPitchView extends View {
         rightPaint = new Paint();
         rightPaint.setStyle(Paint.Style.FILL);
         rightPaint.setColor(getResources().getColor(R.color.sidePaintOff));
-        padding = 50;
+        padding = 16;
         leftRect = new Rect(
                 padding,
                 padding,
