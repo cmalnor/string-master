@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     final int BOffset = 19;
     final int highEOffset = 24;
     private int numberOfFrets = 22;
+    private int gameLength = 60;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -169,6 +170,14 @@ public class MainActivity extends AppCompatActivity {
         android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.flContent, fragment).commit();
 
+    }
+
+    public int getGameLength() {
+        return gameLength;
+    }
+
+    public void setGameLength(int gameLength) {
+        this.gameLength = gameLength;
     }
 
     public int getNumberOfFrets() {

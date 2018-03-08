@@ -60,14 +60,17 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
             if (counter == 0){
                 timeoutSound.start();
                 stopGame();
-            } else if (noteCounter >= 2){
-                correctSound.start();
-                score+=1;
-                scoreView.setText(Integer.toString(score));
-                getRandomNote();
+            } else{
+                if (noteCounter >= 2){
+                    correctSound.start();
+                    score+=1;
+                    scoreView.setText(Integer.toString(score));
+                    noteCounter = 0;
+                    getRandomNote();
+                }
+                countdownView.setText(Integer.toString(counter));
+                noteHandler.postDelayed(this, 1000);
             }
-            countdownView.setText(Integer.toString(counter));
-            noteHandler.postDelayed(this, 1000);
         }
     };
     private MediaPlayer correctSound;
@@ -233,9 +236,10 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
 
     private void resetGame(){
         score = 0;
-        counter = 60;
+        counter = ((MainActivity)getActivity()).getGameLength();
         countdownView.setText(Integer.toString(counter));
         assignedNote.setText("Tap 'Start' to Begin");
+        scoreView.setText(Integer.toString(score));
         startStopButton.setText("Start");
     }
 }

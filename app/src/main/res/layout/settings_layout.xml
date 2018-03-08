@@ -1,60 +1,102 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout3"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="72dp"
-        android:orientation="vertical"
-        android:paddingVertical="12dp">
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="12dp"
 
-            android:src="@drawable/ic_guitar_acoustic"/>
-        <TextView
-            android:id="@+id/setting_frets_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Number of frets to test:"
-            android:layout_alignParentTop="true"
-            android:paddingLeft="72dp"
-            android:textSize="16sp"/>
-        <SeekBar
-            android:id="@+id/frets_seekbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/setting_frets_text"
-            android:paddingStart="72dp"
-            android:paddingLeft="72dp"
-            android:paddingTop="5dp"
-            android:layout_marginRight="16dp"
-            android:max="22"
-            />
-    </RelativeLayout>
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="72dp">
-        <TextView
-            android:id="@+id/setting_game_length_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Length of game:"
-            android:layout_centerVertical="true"
-            android:paddingLeft="72dp"
-            android:textSize="16sp"/>
-        <EditText
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="16dp"
-            android:layout_centerVertical="true"
-            android:inputType="number"
-            android:text="60"/>
-    </RelativeLayout>
+    <ImageView
+        android:id="@+id/guitar_icon"
+        android:layout_width="24dp"
 
-</LinearLayout>
+        android:layout_height="24dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="24dp"
+        android:src="@drawable/ic_guitar_acoustic"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/setting_frets_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginStart="72dp"
+        android:layout_marginLeft="72dp"
+        android:layout_marginTop="16dp"
+        android:text="Number of frets to test:"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <SeekBar
+        android:id="@+id/frets_seekbar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="4dp"
+        android:max="22"
+        android:paddingLeft="72dp"
+        android:paddingStart="72dp"
+        android:paddingRight="8dp"
+        android:paddingEnd="8dp"
+        android:paddingTop="5dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/setting_frets_text" />
+
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="24dp"
+        android:src="@drawable/ic_timer_black_24dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/frets_seekbar" />
+
+    <TextView
+        android:id="@+id/setting_game_length_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginStart="72dp"
+        android:layout_marginLeft="72dp"
+        android:layout_marginTop="16dp"
+        android:text="Length of game:"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/frets_seekbar"
+        tools:text="Length of game:" />
+
+    <SeekBar
+        android:id="@+id/game_length_seekbar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="4dp"
+        android:paddingLeft="72dp"
+        android:paddingStart="72dp"
+        android:paddingEnd="8dp"
+        android:paddingRight="8dp"
+        android:max="10"
+        android:paddingTop="5dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/setting_game_length_text" />
+
+
+</android.support.constraint.ConstraintLayout>

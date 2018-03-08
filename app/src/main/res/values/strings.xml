@@ -11,4 +11,5 @@
         <item>High E</item>
     </string-array>
     <string name="setting_number_frets">Number of frets to test: %1$d</string>
+    <string name="setting_game_length">Game Length: %1$d</string>
 </resources>

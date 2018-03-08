@@ -15,6 +15,8 @@ public class SettingsFragment extends android.support.v4.app.Fragment{
 
     private SeekBar fretsSeekBar;
     private TextView fretsText;
+    private SeekBar timeSeekBar;
+    private TextView timeText;
     private int numberOfNotes;
     private int numberOfFrets;
 
@@ -23,8 +25,11 @@ public class SettingsFragment extends android.support.v4.app.Fragment{
         View rootView = inflater.inflate(R.layout.settings_layout, container, false);
         fretsSeekBar = (SeekBar) rootView.findViewById(R.id.frets_seekbar);
         fretsText = (TextView) rootView.findViewById(R.id.setting_frets_text);
+        timeSeekBar = (SeekBar) rootView.findViewById(R.id.game_length_seekbar);
+        timeText = (TextView) rootView.findViewById(R.id.setting_game_length_text);
         numberOfNotes = ((MainActivity)getActivity()).getNOTES().length;
         fretsSeekBar.setMax(21);
+        timeSeekBar.setMax(120);
 
         //numberOfFrets is for SeekBar, so 0 is included
         fretsText.setText(getContext().getString(R.string.setting_number_frets,
@@ -35,6 +40,23 @@ public class SettingsFragment extends android.support.v4.app.Fragment{
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 ((MainActivity)getActivity()).setNumberOfFrets(i+1);
                 fretsText.setText(getContext().getString(R.string.setting_number_frets, i+1));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        timeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                ((MainActivity)getActivity()).setGameLength(i);
+                timeText.setText(getContext().getString(R.string.setting_game_length, i));
             }
 
             @Override
