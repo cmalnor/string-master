@@ -63,7 +63,7 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
             } else{
                 if (noteCounter >= 2){
                     correctSound.start();
-                    score+=1;
+                    scorePoint();
                     scoreView.setText(Integer.toString(score));
                     noteCounter = 0;
                     getRandomNote();
@@ -186,7 +186,7 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
         noteHandler.post(noteRunnable);
         startStopButton.setText("Stop");
         getRandomNote();
-        counter = 61;
+        counter += 1;
         pdService.startAudio();
     }
 

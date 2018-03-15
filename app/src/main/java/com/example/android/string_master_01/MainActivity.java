@@ -1,6 +1,7 @@
 package com.example.android.string_master_01;
 
 import android.Manifest;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
@@ -36,8 +38,8 @@ public class MainActivity extends AppCompatActivity {
     final int GOffset = 15;
     final int BOffset = 19;
     final int highEOffset = 24;
-    private int numberOfFrets = 22;
-    private int gameLength = 60;
+    private int numberOfFrets;
+    private int gameLength;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +58,13 @@ public class MainActivity extends AppCompatActivity {
         setupDrawerContent(nvDrawer);
         if(savedInstanceState == null){
         }
+
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        setGameLength(sharedPref.getInt("game_length", 2)*30);
+        setNumberOfFrets(sharedPref.getInt("number_frets", 21)+1);
+
+
     }
 
     private ActionBarDrawerToggle setupDrawerToggle() {
@@ -106,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
                 fragmentClass = TunerFragment.class;
         }
 
-        if (fragmentClass == TunerFragment.class){
+        if (fragmentClass == TunerFragment.class || fragmentClass == TrainerFragment.class){
             if (ActivityCompat.checkSelfPermission(this,
                     Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED){
                 swapFragment(fragmentClass);
@@ -127,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
         mDrawer.closeDrawers();
 
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode,

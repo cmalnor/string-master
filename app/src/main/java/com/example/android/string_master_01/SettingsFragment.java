@@ -1,75 +1,63 @@
 package com.example.android.string_master_01;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.SeekBar;
-import android.widget.TextView;
+import android.support.v7.preference.PreferenceFragmentCompat;
+import android.support.v7.preference.PreferenceManager;
+import android.util.Log;
 
 /**
  * Created by codymalnor on 2/20/18.
  */
 
-public class SettingsFragment extends android.support.v4.app.Fragment{
+public class SettingsFragment extends PreferenceFragmentCompat
+        implements SharedPreferences.OnSharedPreferenceChangeListener{
 
-    private SeekBar fretsSeekBar;
-    private TextView fretsText;
-    private SeekBar timeSeekBar;
-    private TextView timeText;
+    private static final String TAG = "StringMaster/Settings";
+    private android.support.v7.preference.Preference fretsSeekBar;
+    private android.support.v7.preference.Preference timeSeekBar;
     private int numberOfNotes;
     private int numberOfFrets;
+    SharedPreferences sharedPreferences;
+    private int gameLength;
+    private static final String KEY_GAME_LENGTH = "game_length";
+    private static final String KEY_NUMBER_FRETS = "number_frets";
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
-        View rootView = inflater.inflate(R.layout.settings_layout, container, false);
-        fretsSeekBar = (SeekBar) rootView.findViewById(R.id.frets_seekbar);
-        fretsText = (TextView) rootView.findViewById(R.id.setting_frets_text);
-        timeSeekBar = (SeekBar) rootView.findViewById(R.id.game_length_seekbar);
-        timeText = (TextView) rootView.findViewById(R.id.setting_game_length_text);
+    public void onCreatePreferences(Bundle bundle, String s){
+        addPreferencesFromResource(R.xml.preferences);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+        fretsSeekBar = findPreference(KEY_NUMBER_FRETS);
+        timeSeekBar = findPreference(KEY_GAME_LENGTH);
+
         numberOfNotes = ((MainActivity)getActivity()).getNOTES().length;
-        fretsSeekBar.setMax(21);
-        timeSeekBar.setMax(120);
+    }
 
-        //numberOfFrets is for SeekBar, so 0 is included
-        fretsText.setText(getContext().getString(R.string.setting_number_frets,
-                ((MainActivity)getActivity()).getNumberOfFrets()));
-        fretsSeekBar.setProgress(((MainActivity)getActivity()).getNumberOfFrets()-1);
-        fretsSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                ((MainActivity)getActivity()).setNumberOfFrets(i+1);
-                fretsText.setText(getContext().getString(R.string.setting_number_frets, i+1));
-            }
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key){
+        Log.d(TAG, "onSharedPreferenceChanged: ");
+        if(key.equals(KEY_GAME_LENGTH)){
 
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
+            //length of game in increments of 30s: 0-300s
+            gameLength = sharedPreferences.getInt(KEY_GAME_LENGTH, 2)*30;
+            ((MainActivity)getActivity()).setGameLength(gameLength);
+        } else if (key.equals(KEY_NUMBER_FRETS)){
 
-            }
+            //number of frets tested: 1-22
+            numberOfFrets = sharedPreferences.getInt(KEY_NUMBER_FRETS, 21)+1;
+            ((MainActivity)getActivity()).setNumberOfFrets(numberOfFrets);
+        }
+    }
 
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
+    @Override
+    public void onResume(){
+        super.onResume();
+        getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+    }
 
-            }
-        });
-        timeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                ((MainActivity)getActivity()).setGameLength(i);
-                timeText.setText(getContext().getString(R.string.setting_game_length, i));
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-
-        return rootView;
+    @Override
+    public void onPause(){
+        super.onPause();
+        getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
     }
 }
