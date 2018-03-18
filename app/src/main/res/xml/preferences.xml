@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <android.support.v7.preference.SeekBarPreference
-        android:key="number_frets"
-        android:title="@string/number_frets"
+        android:key="@string/com.example.string_master.SETTING_NUMBER_FRETS"
+        android:title="@string/text_number_frets"
         android:icon="@drawable/ic_guitar_acoustic"
         android:max="21"
         android:defaultValue="21"
         />
     <android.support.v7.preference.SeekBarPreference
-        android:key="game_length"
-        android:title="@string/game_length"
+        android:key="@string/com.example.string_master.SETTING_GAME_LENGTH"
+        android:title="@string/text_game_length"
         android:icon="@drawable/ic_timer_black_24dp"
         android:max="9"
         android:defaultValue="5"/>

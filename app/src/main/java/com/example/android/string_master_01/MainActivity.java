@@ -57,12 +57,13 @@ public class MainActivity extends AppCompatActivity {
 
         setupDrawerContent(nvDrawer);
         if(savedInstanceState == null){
+            swapFragment(TrainerFragment.class);
         }
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        setGameLength(sharedPref.getInt("game_length", 2)*30);
-        setNumberOfFrets(sharedPref.getInt("number_frets", 21)+1);
+        setGameLength(sharedPref.getInt(getString(R.string.com_example_string_master_SETTING_GAME_LENGTH), 2)*30);
+        setNumberOfFrets(sharedPref.getInt(getString(R.string.com_example_string_master_SETTING_NUMBER_FRETS), 21)+1);
 
 
     }

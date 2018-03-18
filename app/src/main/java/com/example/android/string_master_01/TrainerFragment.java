@@ -1,13 +1,16 @@
 package com.example.android.string_master_01;
 
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
+import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,10 +48,16 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
     private TrainerPitchView pitchView;
     private TextView assignedNote;
     private TextView countdownView;
+    private TextView highScoreView;
     private PdUiDispatcher dispatcher;
     private PdService pdService = null;
     private android.os.Handler noteHandler = new Handler();
     private Random rand = new Random();
+    private Context context;
+    private MediaPlayer correctSound;
+    private MediaPlayer timeoutSound;
+    private SharedPreferences sharedPreferences;
+    private String KEY_HIGH_SCORE;
     private int noteCounter = 0;
     private int counter = 0;
     private int score = 0;
@@ -59,12 +68,14 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
             counter--;
             if (counter == 0){
                 timeoutSound.start();
+                countdownView.setText(Integer.toString(counter));
                 stopGame();
             } else{
                 if (noteCounter >= 2){
                     correctSound.start();
                     scorePoint();
                     scoreView.setText(Integer.toString(score));
+                    setHighScore();
                     noteCounter = 0;
                     getRandomNote();
                 }
@@ -73,14 +84,11 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
             }
         }
     };
-    private MediaPlayer correctSound;
-    private MediaPlayer timeoutSound;
-
 
     private String TAG = "TrainerFragment";
 
     private void getRandomNote(){
-        int nextNote = rand.nextInt(((MainActivity)getActivity()).getNumberOfFrets())+noteOffset;
+        int nextNote = rand.nextInt(((MainActivity)context).getNumberOfFrets())+noteOffset;
         assignedNote.setText(notes[nextNote]);
         pitchView.setCenterPitch(nextNote+40);
     }
@@ -88,8 +96,15 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
 
         View rootView = inflater.inflate(R.layout.trainer_layout, container, false);
+        context = getActivity();
+
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        KEY_HIGH_SCORE = getString(R.string.com_example_string_master_SETTING_HIGH_SCORE);
+
         countdownView = (TextView) rootView.findViewById(R.id.countdown);
         assignedNote = (TextView) rootView.findViewById(R.id.assigned_note);
+        highScoreView = (TextView) rootView.findViewById(R.id.trainer_high_score);
+        setHighScore();
         startStopButton = (Button) rootView.findViewById(R.id.start_stop_button);
         scoreView = (TextView) rootView.findViewById(R.id.trainer_score);
         startStopButton.setOnClickListener(new View.OnClickListener() {
@@ -109,11 +124,12 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
                 R.array.strings, android.R.layout.simple_spinner_dropdown_item);
         chosenString.setAdapter(adapter);
         chosenString.setOnItemSelectedListener(this);
-        notes = ((MainActivity)getActivity()).getNOTES();
+        notes = ((MainActivity)context).getNOTES();
         pitchView = (TrainerPitchView)rootView.findViewById(R.id.trainer_pitch_view);
         pitchView.setCenterPitch(45);
-        correctSound = MediaPlayer.create(getActivity(), R.raw.correct);
-        timeoutSound = MediaPlayer.create(getActivity(), R.raw.out_of_time);
+        correctSound = MediaPlayer.create(context, R.raw.correct);
+        timeoutSound = MediaPlayer.create(context, R.raw.out_of_time);
+
         resetGame();
         return rootView;
     }
@@ -123,25 +139,25 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
         Log.d(TAG, "onItemSelected: " + parent.getItemAtPosition(pos));
         switch(pos){
             case 0:
-                noteOffset = ((MainActivity)getActivity()).getLowEOffset();
+                noteOffset = ((MainActivity)context).getLowEOffset();
                 break;
             case 1:
-                noteOffset = ((MainActivity)getActivity()).getAOffset();
+                noteOffset = ((MainActivity)context).getAOffset();
                 break;
             case 2:
-                noteOffset = ((MainActivity)getActivity()).getDOffset();
+                noteOffset = ((MainActivity)context).getDOffset();
                 break;
             case 3:
-                noteOffset = ((MainActivity)getActivity()).getGOffset();
+                noteOffset = ((MainActivity)context).getGOffset();
                 break;
             case 4:
-                noteOffset = ((MainActivity)getActivity()).getBOffset();
+                noteOffset = ((MainActivity)context).getBOffset();
                 break;
             case 5:
-                noteOffset = ((MainActivity)getActivity()).getHighEOffset();
+                noteOffset = ((MainActivity)context).getHighEOffset();
                 break;
             default:
-                noteOffset = ((MainActivity)getActivity()).getLowEOffset();
+                noteOffset = ((MainActivity)context).getLowEOffset();
                 break;
         }
     }
@@ -160,7 +176,7 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
                 loadPatch();
             } catch (IOException e){
                 Log.e(TAG, e.toString());
-                getActivity().finish();
+                ((MainActivity)context).finish();
             }
         }
 
@@ -172,14 +188,14 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
     @Override
     public void onStart(){
         super.onStart();
-        getActivity().bindService(new Intent(getActivity(), PdService.class), pdConnection, BIND_AUTO_CREATE);
+        context.bindService(new Intent(context, PdService.class), pdConnection, BIND_AUTO_CREATE);
     }
 
     @Override
     public void onStop(){
         super.onStop();
         noteHandler.removeCallbacks(noteRunnable);
-        getActivity().unbindService(pdConnection);
+        context.unbindService(pdConnection);
     }
 
     private void startGame(){
@@ -223,7 +239,7 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
     }
 
     private void loadPatch() throws IOException{
-        File dir = getActivity().getFilesDir();
+        File dir = context.getFilesDir();
         IoUtils.extractZipResource(
                 getResources().openRawResource(R.raw.tuner), dir, true);
         File patchFile = new File(dir, "tuner.pd");
@@ -236,10 +252,25 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
 
     private void resetGame(){
         score = 0;
-        counter = ((MainActivity)getActivity()).getGameLength();
+        counter = ((MainActivity)context).getGameLength();
         countdownView.setText(Integer.toString(counter));
         assignedNote.setText("Tap 'Start' to Begin");
         scoreView.setText(Integer.toString(score));
         startStopButton.setText("Start");
+    }
+
+    private void setHighScore(){
+        //If score when game is stopped is a new high score for this game length, save it
+        String key = KEY_HIGH_SCORE+((MainActivity)context).getGameLength();
+        int highScore = sharedPreferences.getInt(key, 0);
+        if(!sharedPreferences.contains(key) ||
+                highScore < score){
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putInt(key, score);
+            editor.apply();
+            highScoreView.setText(getString(R.string.text_high_score, score));
+        } else{
+            highScoreView.setText(getString(R.string.text_high_score, highScore));
+        }
     }
 }

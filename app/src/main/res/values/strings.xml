@@ -10,6 +10,10 @@
         <item>B</item>
         <item>High E</item>
     </string-array>
-    <string name="number_frets">Number of frets to test:</string>
-    <string name="game_length">Game Length:</string>
+    <string name="text_number_frets">Number of frets to test:</string>
+    <string name="text_game_length">Game Length:</string>
+    <string name="text_high_score">High Score: %1$d</string>
+    <string name="com.example.string_master.SETTING_NUMBER_FRETS">setting_number_frets</string>
+    <string name="com.example.string_master.SETTING_GAME_LENGTH">setting_game_length</string>
+    <string name="com.example.string_master.SETTING_HIGH_SCORE">setting_high_score_</string>
 </resources>
