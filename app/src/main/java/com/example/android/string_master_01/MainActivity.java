@@ -131,6 +131,8 @@ public class MainActivity extends AppCompatActivity {
             if(allowSwap){
                 swapFragment(fragmentClass);
             }
+        } else {
+            swapFragment(fragmentClass);
         }
 
         //Highlight the selected item has been done by NavigationView
