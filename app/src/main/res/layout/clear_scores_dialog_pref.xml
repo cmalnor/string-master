@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/clear_scores_textView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="@string/dialog_clear_scores"
+    android:paddingLeft="24dp"
+    android:paddingStart="24dp"
+    android:paddingRight="24dp"
+    android:paddingEnd="24dp"
+    android:paddingTop="20dp"
+    android:paddingBottom="20dp"
+    android:textSize="18sp"
+    style="@style/PreferenceThemeOverlay.v14.Material"/>

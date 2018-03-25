@@ -47,25 +47,25 @@ public class TrainerPitchView extends View {
         rightPaint = new Paint();
         rightPaint.setStyle(Paint.Style.FILL);
         rightPaint.setColor(getResources().getColor(R.color.sidePaintOff));
-        padding = 16;
+        int left = getPaddingLeft();
+        int top = getPaddingTop();
+        int right = width-getPaddingRight();
+        int bottom = height-getPaddingBottom();
         leftRect = new Rect(
-                padding,
-                padding,
+                left,
+                top,
                 width/2-width/10,
-                height-padding);
+                bottom);
         rightRect = new Rect(
                 width/2+width/10,
-                padding,
-                width-padding,
-                height-padding);
+                top,
+                right,
+                bottom);
         centerRect = new Rect(
                 width/2-width/10,
-                padding,
+                top,
                 width/2+width/10,
-                height-padding);
-        Log.d(TAG, "init: height: " + height);
-        Log.d(TAG, "init: height: " + width);
-
+                bottom);
     }
     
     public void setNewPitch(float newPitch){

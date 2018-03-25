@@ -1,16 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<android.support.v7.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:anrdoid="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/tools">
     <android.support.v7.preference.SeekBarPreference
         android:key="@string/com.example.string_master.SETTING_NUMBER_FRETS"
         android:title="@string/text_number_frets"
         android:icon="@drawable/ic_guitar_acoustic"
         android:max="21"
         android:defaultValue="21"
+        style="@style/AppPreference.SeekBarPreference"
         />
     <android.support.v7.preference.SeekBarPreference
         android:key="@string/com.example.string_master.SETTING_GAME_LENGTH"
         android:title="@string/text_game_length"
         android:icon="@drawable/ic_timer_black_24dp"
-        android:max="9"
-        android:defaultValue="5"/>
+        android:max="30"
+        android:defaultValue="30"
+        style="@style/AppPreference.SeekBarPreference"
+        android:layout="@layout/preference_widget_seekbar_fix"/>
+    <com.example.android.string_master_01.ClearScoresDialogPreference
+        android:key="@string/com.example.string_master.SETTING_CLEAR_SCORES"
+        android:title="@string/text_clear_scores"
+        style="@style/AppPreference.DialogPreference"/>
 </android.support.v7.preference.PreferenceScreen>

@@ -3,8 +3,11 @@ package com.example.android.string_master_01;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
+import android.support.v7.preference.SeekBarPreference;
 import android.util.Log;
 
 /**
@@ -15,8 +18,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
         implements SharedPreferences.OnSharedPreferenceChangeListener{
 
     private static final String TAG = "StringMaster/Settings";
-    private android.support.v7.preference.Preference fretsSeekBar;
-    private android.support.v7.preference.Preference timeSeekBar;
+    private android.support.v7.preference.SeekBarPreference fretsSeekBar;
+    private android.support.v7.preference.SeekBarPreference timeSeekBar;
+    private android.support.v7.preference.Preference clearScoresDialog;
     private int numberOfNotes;
     private int numberOfFrets;
     private SharedPreferences sharedPreferences;
@@ -29,16 +33,16 @@ public class SettingsFragment extends PreferenceFragmentCompat
     @Override
     public void onCreatePreferences(Bundle bundle, String s){
         addPreferencesFromResource(R.xml.preferences);
+        KEY_NUMBER_FRETS = getString(R.string.com_example_string_master_SETTING_NUMBER_FRETS);
+        KEY_GAME_LENGTH = getString(R.string.com_example_string_master_SETTING_GAME_LENGTH);
+        KEY_HIGH_SCORE = getString(R.string.com_example_string_master_SETTING_CLEAR_SCORES);
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
-        fretsSeekBar = findPreference(KEY_NUMBER_FRETS);
-        timeSeekBar = findPreference(KEY_GAME_LENGTH);
+        fretsSeekBar = (SeekBarPreference)findPreference(KEY_NUMBER_FRETS);
+        timeSeekBar = (SeekBarPreference)findPreference(KEY_GAME_LENGTH);
 
         numberOfNotes = ((MainActivity)getActivity()).getNOTES().length;
 
-        KEY_GAME_LENGTH = getString(R.string.com_example_string_master_SETTING_GAME_LENGTH);
-        KEY_NUMBER_FRETS = getString(R.string.com_example_string_master_SETTING_NUMBER_FRETS);
-        KEY_HIGH_SCORE = getString(R.string.com_example_string_master_SETTING_HIGH_SCORE);
 
         context = getActivity();
     }
@@ -48,15 +52,13 @@ public class SettingsFragment extends PreferenceFragmentCompat
         if(key.equals(KEY_GAME_LENGTH)){
 
             //length of game in increments of 30s: 0-300s
-            gameLength = sharedPreferences.getInt(KEY_GAME_LENGTH, 2)*30;
+            gameLength = sharedPreferences.getInt(KEY_GAME_LENGTH, 30);
             ((MainActivity)context).setGameLength(gameLength);
         } else if (key.equals(KEY_NUMBER_FRETS)){
 
             //number of frets tested: 1-22
             numberOfFrets = sharedPreferences.getInt(KEY_NUMBER_FRETS, 21)+1;
             ((MainActivity)context).setNumberOfFrets(numberOfFrets);
-        } else if (key.equals(KEY_HIGH_SCORE+gameLength)){
-
         }
     }
 
@@ -70,5 +72,19 @@ public class SettingsFragment extends PreferenceFragmentCompat
     public void onPause(){
         super.onPause();
         getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onDisplayPreferenceDialog(Preference preference){
+        DialogFragment dialogFragment = null;
+        if(preference instanceof ClearScoresDialogPreference){
+            dialogFragment = ClearScoresDialogFragmentCompat.newInstance(preference.getKey());
+        }
+        if(dialogFragment != null){
+            dialogFragment.setTargetFragment(this, 0);
+            dialogFragment.show(this.getFragmentManager(), "android.support.v7.preference" + ".PreferenceFragment.DIALOG");
+        } else{
+            super.onDisplayPreferenceDialog(preference);
+        }
     }
 }

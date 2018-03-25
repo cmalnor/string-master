@@ -58,6 +58,7 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
     private MediaPlayer timeoutSound;
     private SharedPreferences sharedPreferences;
     private String KEY_HIGH_SCORE;
+    private int selectedString;
     private int noteCounter = 0;
     private int counter = 0;
     private int score = 0;
@@ -87,11 +88,7 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
 
     private String TAG = "TrainerFragment";
 
-    private void getRandomNote(){
-        int nextNote = rand.nextInt(((MainActivity)context).getNumberOfFrets())+noteOffset;
-        assignedNote.setText(notes[nextNote]);
-        pitchView.setCenterPitch(nextNote+40);
-    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
 
@@ -137,6 +134,8 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id){
         Log.d(TAG, "onItemSelected: " + parent.getItemAtPosition(pos));
+        selectedString = pos;
+        setHighScore();
         switch(pos){
             case 0:
                 noteOffset = ((MainActivity)context).getLowEOffset();
@@ -198,18 +197,26 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
         context.unbindService(pdConnection);
     }
 
+    private void getRandomNote(){
+        int nextNote = rand.nextInt(((MainActivity)context).getNumberOfFrets())+noteOffset;
+        assignedNote.setText(notes[nextNote]);
+        pitchView.setCenterPitch(nextNote+40);
+    }
+
     private void startGame(){
         noteHandler.post(noteRunnable);
         startStopButton.setText("Stop");
         getRandomNote();
         counter += 1;
         pdService.startAudio();
+        chosenString.setEnabled(false);
     }
 
     private void stopGame(){
         noteHandler.removeCallbacks(noteRunnable);
         startStopButton.setText("Reset");
         pdService.stopAudio();
+        chosenString.setEnabled(true);
     }
 
     private void initPd() throws IOException{
@@ -261,7 +268,8 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
 
     private void setHighScore(){
         //If score when game is stopped is a new high score for this game length, save it
-        String key = KEY_HIGH_SCORE+((MainActivity)context).getGameLength();
+        String key = KEY_HIGH_SCORE+((MainActivity)context).getNumberOfFrets()+'_'+selectedString;
+        Log.d(TAG, "setHighScore: "+key);
         int highScore = sharedPreferences.getInt(key, 0);
         if(!sharedPreferences.contains(key) ||
                 highScore < score){

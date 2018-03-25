@@ -24,7 +24,9 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
         android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
         android:gravity="center"
         app:layout_constraintBottom_toTopOf="@+id/start_stop_button"
@@ -79,42 +81,45 @@
         android:layout_width="wrap_content"
         android:layout_height="100dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/assigned_note" />
+        app:layout_constraintTop_toBottomOf="@+id/assigned_note"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"/>
 
     <TextView
         android:id="@+id/string_chooser_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:text="Selected guitar string:"
+        android:layout_marginLeft="16dp"
+        android:text="@string/trainer_text_selected_string"
         app:layout_constraintBottom_toBottomOf="@+id/string_choice"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/string_choice"
-        tools:text="Selected guitar string:" />
+        tools:text="@string/trainer_text_selected_string" />
 
     <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:maxLines="2"
-        android:text="Seconds\nRemaining"
+        android:text="@string/trainer_seconds_remaining"
         android:textAlignment="center"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="@+id/countdown"
         app:layout_constraintStart_toStartOf="@+id/countdown"
         app:layout_constraintTop_toBottomOf="@+id/countdown"
-        tools:text="Seconds\nRemaining" />
+        tools:text="@string/trainer_seconds_remaining" />
 
     <TextView
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Score"
+        android:text="@string/trainer_text_score"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="@+id/trainer_score"
         app:layout_constraintStart_toStartOf="@+id/trainer_score"
         app:layout_constraintTop_toBottomOf="@+id/trainer_score"
-        tools:text="Score" />
+        tools:text="@string/trainer_text_score" />
 
     <TextView
         android:id="@+id/trainer_high_score"

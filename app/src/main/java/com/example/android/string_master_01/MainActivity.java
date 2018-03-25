@@ -8,12 +8,14 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -40,7 +42,9 @@ public class MainActivity extends AppCompatActivity {
     final int highEOffset = 24;
     private int numberOfFrets;
     private int gameLength;
+    private boolean allowSwap;
 
+    private final String TAG = "MainActivity";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,8 +60,15 @@ public class MainActivity extends AppCompatActivity {
         nvDrawer = (NavigationView) findViewById(R.id.nvView);
 
         setupDrawerContent(nvDrawer);
-        if(savedInstanceState == null){
-            swapFragment(TrainerFragment.class);
+
+        allowSwap = false;
+
+        checkPermissions();
+
+        if(allowSwap){
+            if(savedInstanceState == null){
+                swapFragment(TrainerFragment.class);
+            }
         }
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
@@ -115,29 +126,23 @@ public class MainActivity extends AppCompatActivity {
             default:
                 fragmentClass = TunerFragment.class;
         }
-
-        if (fragmentClass == TunerFragment.class || fragmentClass == TrainerFragment.class){
-            if (ActivityCompat.checkSelfPermission(this,
-                    Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED){
+        if(fragmentClass == TrainerFragment.class || fragmentClass == TunerFragment.class){
+            checkPermissions();
+            if(allowSwap){
                 swapFragment(fragmentClass);
-            } else{
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.RECORD_AUDIO},
-                        REQUEST_RECORD_AUDIO_PERMISSION);
             }
-        } else{
-            swapFragment(fragmentClass);
-
         }
+
         //Highlight the selected item has been done by NavigationView
         item.setChecked(true);
+
         //Set action bar title
         setTitle(item.getTitle());
+
         //Close the navigation drawer
         mDrawer.closeDrawers();
 
     }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
@@ -150,9 +155,10 @@ public class MainActivity extends AppCompatActivity {
 
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
-                    swapFragment(TunerFragment.class);
+                    allowSwap = true;
                 } else {
-
+                    Toast toast = Toast.makeText(this, "Record Audio Permission Required!", Toast.LENGTH_SHORT);
+                    toast.show();
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                 }
@@ -167,6 +173,15 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void checkPermissions(){
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.RECORD_AUDIO},
+                    REQUEST_RECORD_AUDIO_PERMISSION);
+        }
     }
 
     public void swapFragment(Class fragmentClass){

@@ -13,7 +13,15 @@
     <string name="text_number_frets">Number of frets to test:</string>
     <string name="text_game_length">Game Length:</string>
     <string name="text_high_score">High Score: %1$d</string>
+    <string name="text_clear_scores">Clear high scores</string>
+    <string name="trainer_text_selected_string">Selected guitar string: </string>
+    <string name="trainer_seconds_remaining">Seconds\nRemaining</string>
+    <string name="trainer_text_score">Score</string>
+    <string name="dialog_clear_scores">Are you sure you want to permanently erase all high scores?</string>
+    <string name="dialog_clear_scores_ok">Erase</string>
+    <string name="dialog_clear_scores_cancel">Cancel</string>
     <string name="com.example.string_master.SETTING_NUMBER_FRETS">setting_number_frets</string>
     <string name="com.example.string_master.SETTING_GAME_LENGTH">setting_game_length</string>
     <string name="com.example.string_master.SETTING_HIGH_SCORE">setting_high_score_</string>
+    <string name="com.example.string_master.SETTING_CLEAR_SCORES">setting_clear_scores</string>
 </resources>
