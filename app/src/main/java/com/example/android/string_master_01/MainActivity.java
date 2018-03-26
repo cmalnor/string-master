@@ -14,6 +14,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -65,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
 
         checkPermissions();
 
+        Log.d(TAG, "onCreate: allowswap = " + allowSwap);
         if(allowSwap){
             if(savedInstanceState == null){
                 swapFragment(TrainerFragment.class);
@@ -149,12 +151,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
+        Log.d(TAG, "onRequestPermissionsResult: requestCode: " + requestCode);
         switch (requestCode) {
             case REQUEST_RECORD_AUDIO_PERMISSION: {
                 // If request is cancelled, the result arrays are empty.
+                Log.d(TAG, "onRequestPermissionsResult: case request audio");
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
+                    Log.d(TAG, "onRequestPermissionsResult: permission granted");
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
                     allowSwap = true;
@@ -183,6 +187,8 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.RECORD_AUDIO},
                     REQUEST_RECORD_AUDIO_PERMISSION);
+        } else {
+            allowSwap = true;
         }
     }
 

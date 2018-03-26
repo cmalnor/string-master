@@ -6,7 +6,7 @@
         android:key="@string/com.example.string_master.SETTING_NUMBER_FRETS"
         android:title="@string/text_number_frets"
         android:icon="@drawable/ic_guitar_acoustic"
-        android:max="21"
+        android:max="23"
         android:defaultValue="21"
         style="@style/AppPreference.SeekBarPreference"
         />
@@ -14,10 +14,10 @@
         android:key="@string/com.example.string_master.SETTING_GAME_LENGTH"
         android:title="@string/text_game_length"
         android:icon="@drawable/ic_timer_black_24dp"
-        android:max="30"
-        android:defaultValue="30"
+        android:max="5"
+        android:defaultValue="0"
         style="@style/AppPreference.SeekBarPreference"
-        android:layout="@layout/preference_widget_seekbar_fix"/>
+        />
     <com.example.android.string_master_01.ClearScoresDialogPreference
         android:key="@string/com.example.string_master.SETTING_CLEAR_SCORES"
         android:title="@string/text_clear_scores"

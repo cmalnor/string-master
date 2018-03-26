@@ -39,7 +39,12 @@ public class SettingsFragment extends PreferenceFragmentCompat
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         fretsSeekBar = (SeekBarPreference)findPreference(KEY_NUMBER_FRETS);
+        numberOfFrets = sharedPreferences.getInt(KEY_NUMBER_FRETS, 21)+1;
+        fretsSeekBar.setTitle(getString(R.string.text_number_frets, numberOfFrets));
+
         timeSeekBar = (SeekBarPreference)findPreference(KEY_GAME_LENGTH);
+        gameLength = (sharedPreferences.getInt(KEY_GAME_LENGTH, 0)+1)*30;
+        timeSeekBar.setTitle(getString(R.string.text_game_length, gameLength));
 
         numberOfNotes = ((MainActivity)getActivity()).getNOTES().length;
 
@@ -51,14 +56,16 @@ public class SettingsFragment extends PreferenceFragmentCompat
         Log.d(TAG, "onSharedPreferenceChanged: ");
         if(key.equals(KEY_GAME_LENGTH)){
 
-            //length of game in increments of 30s: 0-300s
-            gameLength = sharedPreferences.getInt(KEY_GAME_LENGTH, 30);
+            //length of game in increments of 30s: 0-240s
+            gameLength = (sharedPreferences.getInt(KEY_GAME_LENGTH, 0)+1)*30;
             ((MainActivity)context).setGameLength(gameLength);
+            timeSeekBar.setTitle(getString(R.string.text_game_length, gameLength));
         } else if (key.equals(KEY_NUMBER_FRETS)){
 
-            //number of frets tested: 1-22
+            //number of frets tested: 1-23
             numberOfFrets = sharedPreferences.getInt(KEY_NUMBER_FRETS, 21)+1;
             ((MainActivity)context).setNumberOfFrets(numberOfFrets);
+            fretsSeekBar.setTitle(getString(R.string.text_number_frets, numberOfFrets));
         }
     }
 
