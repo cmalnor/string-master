@@ -268,7 +268,12 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
 
     private void setHighScore(){
         //If score when game is stopped is a new high score for this game length, save it
-        String key = KEY_HIGH_SCORE+((MainActivity)context).getNumberOfFrets()+'_'+selectedString;
+        String key = KEY_HIGH_SCORE+
+                ((MainActivity)context).getNumberOfFrets()+
+                '_'+
+                selectedString+
+                '_'+
+                ((MainActivity)context).getGameLength();
         Log.d(TAG, "setHighScore: "+key);
         int highScore = sharedPreferences.getInt(key, 0);
         if(!sharedPreferences.contains(key) ||

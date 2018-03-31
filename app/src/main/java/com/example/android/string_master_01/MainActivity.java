@@ -1,13 +1,22 @@
 package com.example.android.string_master_01;
 
 import android.Manifest;
+import android.app.AlarmManager;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -25,7 +34,8 @@ public class MainActivity extends AppCompatActivity {
     private NavigationView nvDrawer;
     private ActionBarDrawerToggle drawerToggle;
 
-    private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
+    private static final int REQUEST_RECORD_AUDIO_PERMISSION_TRAINER = 200;
+    private static final int REQUEST_RECORD_AUDIO_PERMISSION_TUNER = 201;
 
     // Notes on a guitar using Scientific Pitch Notation (SPN)
     // MIDI notes 40 to 86
@@ -43,9 +53,13 @@ public class MainActivity extends AppCompatActivity {
     final int highEOffset = 24;
     private int numberOfFrets;
     private int gameLength;
-    private boolean allowSwap;
 
     private final String TAG = "MainActivity";
+    private final String CHANNEL_ID = "com.example.string_master.ANDROID";
+
+    private NotificationCompat.Builder mBuilder;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,21 +76,64 @@ public class MainActivity extends AppCompatActivity {
 
         setupDrawerContent(nvDrawer);
 
-        allowSwap = false;
-
-        checkPermissions();
-
-        Log.d(TAG, "onCreate: allowswap = " + allowSwap);
-        if(allowSwap){
-            if(savedInstanceState == null){
-                swapFragment(TrainerFragment.class);
-            }
+        if(savedInstanceState == null){
+            checkPermissions(REQUEST_RECORD_AUDIO_PERMISSION_TRAINER);
         }
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        setGameLength(sharedPref.getInt(getString(R.string.com_example_string_master_SETTING_GAME_LENGTH), 2)*30);
+        setGameLength((sharedPref.getInt(getString(R.string.com_example_string_master_SETTING_GAME_LENGTH), 0)+1)*30);
         setNumberOfFrets(sharedPref.getInt(getString(R.string.com_example_string_master_SETTING_NUMBER_FRETS), 21)+1);
+
+        //Setup notification channel if running Oreo+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Create the NotificationChannel, but only on API 26+ because
+            // the NotificationChannel class is new and not in the support library
+            CharSequence name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+
+            // Register the channel with the system
+            NotificationManager notificationManager = (NotificationManager) this
+                    .getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.createNotificationChannel(channel);
+        }
+
+        //Setup builder, default appearance, and action for notification
+        Intent mainActivityIntent = new Intent(this, MainActivity.class);
+        PendingIntent pendingMainActivityIntent = PendingIntent.getActivity(
+                this,
+                0,
+                mainActivityIntent,
+                0);
+        mBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_guitar_acoustic)
+                .setContentTitle(getString(R.string.app_name))
+                .setContentText(getString(R.string.notification_text))
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setContentIntent(pendingMainActivityIntent)
+                .setAutoCancel(true);
+
+        Intent notificationIntent = new Intent(this, NotificationPublisher.class);
+        notificationIntent.putExtra(NotificationPublisher.NOTIFICATION, mBuilder.build());
+        notificationIntent.putExtra(NotificationPublisher.NOTIFICATION_ID, 1);
+        PendingIntent pendingNotificationIntent = PendingIntent.getBroadcast(
+                this,
+                0,
+                notificationIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        //Setup daily reminder notification
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        alarmManager.cancel(pendingNotificationIntent);
+        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                //SystemClock.elapsedRealtime() + AlarmManager.INTERVAL_FIFTEEN_MINUTES,
+                SystemClock.elapsedRealtime(),
+                //AlarmManager.INTERVAL_FIFTEEN_MINUTES,
+                6000,
+                pendingNotificationIntent);
 
 
     }
@@ -126,14 +183,13 @@ public class MainActivity extends AppCompatActivity {
                 fragmentClass = SettingsFragment.class;
                 break;
             default:
-                fragmentClass = TunerFragment.class;
+                fragmentClass = TrainerFragment.class;
         }
-        if(fragmentClass == TrainerFragment.class || fragmentClass == TunerFragment.class){
-            checkPermissions();
-            if(allowSwap){
-                swapFragment(fragmentClass);
-            }
-        } else {
+        if(fragmentClass == TrainerFragment.class){
+            checkPermissions(REQUEST_RECORD_AUDIO_PERMISSION_TRAINER);
+        } else if (fragmentClass == TunerFragment.class){
+            checkPermissions(REQUEST_RECORD_AUDIO_PERMISSION_TUNER);
+        } else{
             swapFragment(fragmentClass);
         }
 
@@ -153,20 +209,23 @@ public class MainActivity extends AppCompatActivity {
                                            String permissions[], int[] grantResults) {
         Log.d(TAG, "onRequestPermissionsResult: requestCode: " + requestCode);
         switch (requestCode) {
-            case REQUEST_RECORD_AUDIO_PERMISSION: {
-                // If request is cancelled, the result arrays are empty.
-                Log.d(TAG, "onRequestPermissionsResult: case request audio");
+            case REQUEST_RECORD_AUDIO_PERMISSION_TRAINER: {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.d(TAG, "onRequestPermissionsResult: permission granted");
-                    // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
-                    allowSwap = true;
+                    swapFragment(TrainerFragment.class);
                 } else {
                     Toast toast = Toast.makeText(this, "Record Audio Permission Required!", Toast.LENGTH_SHORT);
                     toast.show();
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
+                }
+                return;
+            }
+            case REQUEST_RECORD_AUDIO_PERMISSION_TUNER: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    swapFragment(TunerFragment.class);
+                } else {
+                    Toast toast = Toast.makeText(this, "Record Audio Permission Required!", Toast.LENGTH_SHORT);
+                    toast.show();
                 }
                 return;
             }
@@ -181,14 +240,16 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void checkPermissions(){
+    private void checkPermissions(int requestCode){
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.RECORD_AUDIO},
-                    REQUEST_RECORD_AUDIO_PERMISSION);
-        } else {
-            allowSwap = true;
+                    requestCode);
+        } else if (requestCode == REQUEST_RECORD_AUDIO_PERMISSION_TUNER){
+            swapFragment(TunerFragment.class);
+        } else if (requestCode == REQUEST_RECORD_AUDIO_PERMISSION_TRAINER) {
+            swapFragment(TrainerFragment.class);
         }
     }
 
