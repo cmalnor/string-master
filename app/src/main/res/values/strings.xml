@@ -17,6 +17,8 @@
     <string name="text_game_length">Game Length: %1$d</string>
     <string name="text_high_score">High Score: %1$d</string>
     <string name="text_clear_scores">Clear high scores</string>
+    <string name="text_sharps">Include sharp notes</string>
+    <string name="text_flats">Include flat notes</string>
     <string name="trainer_text_selected_string">Selected guitar string: </string>
     <string name="trainer_seconds_remaining">Seconds\nRemaining</string>
     <string name="trainer_text_score">Score</string>
@@ -27,4 +29,7 @@
     <string name="com.example.string_master.SETTING_GAME_LENGTH">setting_game_length</string>
     <string name="com.example.string_master.SETTING_HIGH_SCORE">setting_high_score_</string>
     <string name="com.example.string_master.SETTING_CLEAR_SCORES">setting_clear_scores</string>
+    <string name="com.example.string_master.SETTING_SHARPS">setting_sharps</string>
+    <string name="com.example.string_master.SETTING_FLATS">setting_flats</string>
+
 </resources>

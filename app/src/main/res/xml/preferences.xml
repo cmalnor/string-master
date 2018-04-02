@@ -18,6 +18,18 @@
         android:defaultValue="0"
         style="@style/AppPreference.SeekBarPreference"
         />
+    <android.support.v7.preference.CheckBoxPreference
+        android:key="@string/com.example.string_master.SETTING_SHARPS"
+        android:title="@string/text_sharps"
+        android:defaultValue="true"
+        style="@style/AppPreference"
+        />
+    <android.support.v7.preference.CheckBoxPreference
+        android:key="@string/com.example.string_master.SETTING_FLATS"
+        android:title="@string/text_flats"
+        android:defaultValue="true"
+        style="@style/AppPreference"
+        />
     <com.example.android.string_master_01.ClearScoresDialogPreference
         android:key="@string/com.example.string_master.SETTING_CLEAR_SCORES"
         android:title="@string/text_clear_scores"

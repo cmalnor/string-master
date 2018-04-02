@@ -27,6 +27,9 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public class MainActivity extends AppCompatActivity {
 
     private DrawerLayout mDrawer;
@@ -39,27 +42,121 @@ public class MainActivity extends AppCompatActivity {
 
     // Notes on a guitar using Scientific Pitch Notation (SPN)
     // MIDI notes 40 to 86
-    final String[] NOTES = {
-            "E2", "F2", "F#2", "G2", "G#2", "A2", "A#2", "B2", "C3", "C#3",
-            "D3", "D#3", "E3", "F3", "F#3", "G3", "G#3", "A3", "A#3", "B3",
-            "C4", "C#4", "D4", "D#4", "E4", "F4", "F#4", "G4", "G#4", "A4",
-            "A#4", "B4", "B#4", "C5", "C#5", "D5", "D#5", "E5", "F5", "F#5",
-            "G5", "G#5", "A5", "A#5", "B5", "C6", "C#6"};
-    final int lowEOffset = 0;
-    final int AOffset = 5;
-    final int DOffset = 10;
-    final int GOffset = 15;
-    final int BOffset = 19;
-    final int highEOffset = 24;
+    private final String[] NOTES = {
+            "E2", "F2", "F#2/Gb2", "G2", "G#2/Ab2", "A2", "A#2/Bb2", "B2", "C3", "C#3/Db3",
+            "D3", "D#3/Eb3", "E3", "F3", "F#3/Gb3", "G3", "G#3/Ab3", "A3", "A#3/Bb3", "B3",
+            "C4", "C#4/Db4", "D4", "D#4/Eb4", "E4", "F4", "F#4/Gb4", "G4", "G#4/Ab4", "A4",
+            "A#4/Bb4", "B4", "B#4/Cb5", "C5", "C#5/Db5", "D5", "D#5/Eb5", "E5", "F5", "F#5/Gb5",
+            "G5", "G#5/Ab5", "A5", "A#5/Bb5", "B5", "C6", "C#6/Db6"};
+    private final String[] noteLetters = {"C", "D", "E", "F", "G", "A", "B"};
+    private boolean sharps;
+    private boolean flats;
+
+    private final int lowEOffset = 0;
+    private final int AOffset = 5;
+    private final int DOffset = 10;
+    private final int GOffset = 15;
+    private final int BOffset = 19;
+    private final int highEOffset = 24;
     private int numberOfFrets;
     private int gameLength;
+    private final int baseMIDINote = 40;
 
     private final String TAG = "MainActivity";
     private final String CHANNEL_ID = "com.example.string_master.ANDROID";
 
     private NotificationCompat.Builder mBuilder;
 
+    /**
+    Convert a note to a MIDI number by using the known MIDI number of the string the note was
+    played on
+     **/
+    public int getMIDINote(String note, ArrayList<String> stringNotes){
+        int offset = 0;
+        switch(stringNotes.get(0)){
+            case "E2":
+                offset = lowEOffset;
+                break;
+            case "A2":
+                offset = AOffset;
+                break;
+            case "D3":
+                offset = DOffset;
+                break;
+            case "G3":
+                offset = GOffset;
+                break;
+            case "B3":
+                offset = BOffset;
+                break;
+            case "E4":
+                offset = highEOffset;
+                break;
+        }
+        Log.d(TAG, "getMIDINote: offset = " + baseMIDINote + offset + stringNotes.indexOf(note));
+        return baseMIDINote + offset + stringNotes.indexOf(note);
+    }
 
+    private ArrayList<String> generateNotes(String string, int octave){
+        ArrayList<String> output = new ArrayList<>();
+        int offset = -1;
+        for(int i = 0; i < noteLetters.length; i++){
+            if(noteLetters[i] == string){
+                offset = i;
+                break;
+            }
+        }
+        if (offset == -1){
+            return null;
+        }
+        for(int i = 0; i < numberOfFrets; i++){
+            output.add(noteLetters[offset] + octave);
+            if(noteLetters[offset] != "E" && noteLetters[offset] != "B"){
+                //Number of frets counts a flat/sharp pair as one note
+                i++;
+                if(i < numberOfFrets){
+                    if(sharps){
+                        output.add(noteLetters[offset] + "#" + octave);
+                    }
+                    if(flats){
+                        output.add(noteLetters[offset+1] + "b" + octave);
+                    }
+                }
+            }
+            if(offset == noteLetters.length-1){
+                offset = 0;
+                octave++;
+            } else {
+                offset++;
+            }
+        }
+        Log.d(TAG, "generateNotes: Notelist: " + Arrays.toString(output.toArray()));
+        return output;
+    }
+
+    public ArrayList<String> getLowENotes(){
+        return generateNotes("E", 2);
+    }
+
+    public ArrayList<String> getANotes(){
+        return generateNotes("A", 2);
+    }
+
+    public ArrayList<String> getDNotes(){
+        return generateNotes("D", 3);
+    }
+
+    public ArrayList<String> getGNotes(){
+        return generateNotes("G", 3);
+    }
+
+    public ArrayList<String> getBNotes(){
+        return generateNotes("B", 3);
+    }
+
+    public ArrayList<String> getHighENotes(){
+        return generateNotes("E", 4);
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,10 +177,13 @@ public class MainActivity extends AppCompatActivity {
             checkPermissions(REQUEST_RECORD_AUDIO_PERMISSION_TRAINER);
         }
 
+        //Set preference values with previously saved values (if exists)
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        setGameLength((sharedPref.getInt(getString(R.string.com_example_string_master_SETTING_GAME_LENGTH), 0)+1)*30);
-        setNumberOfFrets(sharedPref.getInt(getString(R.string.com_example_string_master_SETTING_NUMBER_FRETS), 21)+1);
+        gameLength = (sharedPref.getInt(getString(R.string.com_example_string_master_SETTING_GAME_LENGTH), 0)+1)*30;
+        numberOfFrets = sharedPref.getInt(getString(R.string.com_example_string_master_SETTING_NUMBER_FRETS), 21)+1;
+        sharps = sharedPref.getBoolean(getString(R.string.com_example_string_master_SETTING_SHARPS), true);
+        flats = sharedPref.getBoolean(getString(R.string.com_example_string_master_SETTING_FLATS), true);
 
         //Setup notification channel if running Oreo+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -129,10 +229,10 @@ public class MainActivity extends AppCompatActivity {
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         alarmManager.cancel(pendingNotificationIntent);
         alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                //SystemClock.elapsedRealtime() + AlarmManager.INTERVAL_FIFTEEN_MINUTES,
-                SystemClock.elapsedRealtime(),
-                //AlarmManager.INTERVAL_FIFTEEN_MINUTES,
-                6000,
+                SystemClock.elapsedRealtime() + AlarmManager.INTERVAL_FIFTEEN_MINUTES,
+                //SystemClock.elapsedRealtime(),
+                AlarmManager.INTERVAL_FIFTEEN_MINUTES,
+                //6000,
                 pendingNotificationIntent);
 
 
@@ -309,5 +409,21 @@ public class MainActivity extends AppCompatActivity {
 
     public String[] getNOTES() {
         return NOTES;
+    }
+
+    public boolean isSharps() {
+        return sharps;
+    }
+
+    public void setSharps(boolean sharps) {
+        this.sharps = sharps;
+    }
+
+    public boolean isFlats() {
+        return flats;
+    }
+
+    public void setFlats(boolean flats) {
+        this.flats = flats;
     }
 }

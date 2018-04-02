@@ -17,7 +17,7 @@ import android.util.Log;
 public class SettingsFragment extends PreferenceFragmentCompat
         implements SharedPreferences.OnSharedPreferenceChangeListener{
 
-    private static final String TAG = "StringMaster/Settings";
+    private static final String TAG = "SettingsFragment";
     private android.support.v7.preference.SeekBarPreference fretsSeekBar;
     private android.support.v7.preference.SeekBarPreference timeSeekBar;
     private android.support.v7.preference.Preference clearScoresDialog;
@@ -28,6 +28,10 @@ public class SettingsFragment extends PreferenceFragmentCompat
     private String KEY_GAME_LENGTH;
     private String KEY_NUMBER_FRETS;
     private String KEY_HIGH_SCORE;
+    private String KEY_SHARPS;
+    private String KEY_FLATS;
+    private boolean sharps;
+    private boolean flats;
     private Context context;
 
     @Override
@@ -36,6 +40,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
         KEY_NUMBER_FRETS = getString(R.string.com_example_string_master_SETTING_NUMBER_FRETS);
         KEY_GAME_LENGTH = getString(R.string.com_example_string_master_SETTING_GAME_LENGTH);
         KEY_HIGH_SCORE = getString(R.string.com_example_string_master_SETTING_CLEAR_SCORES);
+        KEY_SHARPS = getString(R.string.com_example_string_master_SETTING_SHARPS);
+        KEY_FLATS = getString(R.string.com_example_string_master_SETTING_FLATS);
+
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         fretsSeekBar = (SeekBarPreference)findPreference(KEY_NUMBER_FRETS);
@@ -66,6 +73,16 @@ public class SettingsFragment extends PreferenceFragmentCompat
             numberOfFrets = sharedPreferences.getInt(KEY_NUMBER_FRETS, 21)+1;
             ((MainActivity)context).setNumberOfFrets(numberOfFrets);
             fretsSeekBar.setTitle(getString(R.string.text_number_frets, numberOfFrets));
+        } else if (key.equals(KEY_SHARPS)){
+
+            //include sharps in note list
+            sharps = sharedPreferences.getBoolean(KEY_SHARPS, true);
+            ((MainActivity)context).setSharps(sharps);
+        } else if (key.equals(KEY_FLATS)){
+
+            //include flats in note list
+            flats = sharedPreferences.getBoolean(KEY_FLATS, true);
+            ((MainActivity)context).setFlats(flats);
         }
     }
 

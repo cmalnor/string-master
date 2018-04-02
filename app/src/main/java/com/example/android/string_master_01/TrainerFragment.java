@@ -9,6 +9,7 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
@@ -30,6 +31,7 @@ import org.puredata.core.utils.IoUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Random;
 
 import static android.content.Context.BIND_AUTO_CREATE;
@@ -40,11 +42,9 @@ import static android.content.Context.BIND_AUTO_CREATE;
 
 public class TrainerFragment extends Fragment implements AdapterView.OnItemSelectedListener{
 
-    private TrainerPitchView testPitch;
     private Button startStopButton;
     private Spinner chosenString;
-    private String[] notes;
-    private int noteOffset;
+    private ArrayList<String> notes;
     private TrainerPitchView pitchView;
     private TextView assignedNote;
     private TextView countdownView;
@@ -90,7 +90,7 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
 
         View rootView = inflater.inflate(R.layout.trainer_layout, container, false);
         context = getActivity();
@@ -121,7 +121,9 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
                 R.array.strings, android.R.layout.simple_spinner_dropdown_item);
         chosenString.setAdapter(adapter);
         chosenString.setOnItemSelectedListener(this);
-        notes = ((MainActivity)context).getNOTES();
+
+        notes = ((MainActivity)context).getLowENotes();
+
         pitchView = (TrainerPitchView)rootView.findViewById(R.id.trainer_pitch_view);
         pitchView.setCenterPitch(45);
         correctSound = MediaPlayer.create(context, R.raw.correct);
@@ -138,25 +140,25 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
         setHighScore();
         switch(pos){
             case 0:
-                noteOffset = ((MainActivity)context).getLowEOffset();
+                notes = ((MainActivity)context).getLowENotes();
                 break;
             case 1:
-                noteOffset = ((MainActivity)context).getAOffset();
+                notes = ((MainActivity)context).getANotes();
                 break;
             case 2:
-                noteOffset = ((MainActivity)context).getDOffset();
+                notes = ((MainActivity)context).getDNotes();
                 break;
             case 3:
-                noteOffset = ((MainActivity)context).getGOffset();
+                notes = ((MainActivity)context).getGNotes();
                 break;
             case 4:
-                noteOffset = ((MainActivity)context).getBOffset();
+                notes = ((MainActivity)context).getBNotes();
                 break;
             case 5:
-                noteOffset = ((MainActivity)context).getHighEOffset();
+                notes = ((MainActivity)context).getHighENotes();
                 break;
             default:
-                noteOffset = ((MainActivity)context).getLowEOffset();
+                notes = ((MainActivity)context).getLowENotes();
                 break;
         }
     }
@@ -198,9 +200,10 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
     }
 
     private void getRandomNote(){
-        int nextNote = rand.nextInt(((MainActivity)context).getNumberOfFrets())+noteOffset;
-        assignedNote.setText(notes[nextNote]);
-        pitchView.setCenterPitch(nextNote+40);
+        int nextNoteOffset = rand.nextInt(notes.size());
+        String nextNote = notes.get(nextNoteOffset);
+        assignedNote.setText(nextNote);
+        pitchView.setCenterPitch(((MainActivity)context).getMIDINote(nextNote, notes));
     }
 
     private void startGame(){
