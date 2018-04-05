@@ -65,6 +65,8 @@
 
     <Button
         android:id="@+id/start_stop_button"
+        android:background="@color/colorPrimary"
+        android:textColor="@android:color/white"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:layout_marginBottom="16dp"

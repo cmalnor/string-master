@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
-    <color name="sidePaintOff">#ff9191</color>
+    <color name="colorPrimary">#00796b</color>
+    <color name="colorPrimaryDark">#004c40</color>
+    <color name="colorAccent">#546e7a</color>
+    <color name="sidePaintOff">#ffa6a6</color>
     <color name="sidePaintOn">#ff4545</color>
-    <color name="centerPaintOff">#aaffa1</color>
+    <color name="centerPaintOff">#b8ffb0</color>
     <color name="centerPaintOn">#1aff00</color>
+    <color name="foreground_material_light">#ffffff</color>
+    <color name="primary_material_light">#00796b</color>
+    <color name="primary_dark_material_light">#004c40</color>
+    <color name="accent_material_light">#546e7a</color>
 </resources>

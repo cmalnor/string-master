@@ -1,5 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-
 
     <style name="string_master_light" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
@@ -8,6 +8,7 @@
 
     <style name="AppPreference">
         <item name="android:layout">@layout/preference_material</item>
+
     </style>
     <style name="AppPreference.DialogPreference">
         <item name="android:positiveButtonText">@string/dialog_clear_scores_ok</item>
@@ -17,6 +18,5 @@
         <item name="showSeekBarValue">false</item>
         <item name="android:layout">@layout/preference_widget_seekbar_material</item>
     </style>
-
 
 </resources>
