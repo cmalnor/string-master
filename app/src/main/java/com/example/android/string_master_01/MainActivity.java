@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
                 offset = highEOffset;
                 break;
         }
-        Log.d(TAG, "getMIDINote: offset = " + baseMIDINote + offset + stringNotes.indexOf(note));
+        Log.d(TAG, "getMIDINote: " + (baseMIDINote + offset + stringNotes.indexOf(note)));
         return baseMIDINote + offset + stringNotes.indexOf(note);
     }
 
@@ -157,6 +157,7 @@ public class MainActivity extends AppCompatActivity {
     public ArrayList<String> getHighENotes(){
         return generateNotes("E", 4);
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -56,6 +57,7 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
     private Context context;
     private MediaPlayer correctSound;
     private MediaPlayer timeoutSound;
+    private MediaPlayer tickSound;
     private SharedPreferences sharedPreferences;
     private String KEY_HIGH_SCORE;
     private int selectedString;
@@ -72,14 +74,7 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
                 countdownView.setText(Integer.toString(counter));
                 stopGame();
             } else{
-                if (noteCounter >= 2){
-                    correctSound.start();
-                    scorePoint();
-                    scoreView.setText(Integer.toString(score));
-                    setHighScore();
-                    noteCounter = 0;
-                    getRandomNote();
-                }
+                tickSound.start();
                 countdownView.setText(Integer.toString(counter));
                 noteHandler.postDelayed(this, 1000);
             }
@@ -128,6 +123,7 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
         pitchView.setCenterPitch(45);
         correctSound = MediaPlayer.create(context, R.raw.correct);
         timeoutSound = MediaPlayer.create(context, R.raw.out_of_time);
+        tickSound = MediaPlayer.create(context, R.raw.clock_tick);
 
         resetGame();
         return rootView;
@@ -199,6 +195,20 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
         context.unbindService(pdConnection);
     }
 
+    @Override
+    public void onDestroy(){
+        Log.d(TAG, "onDestroy: called");
+        super.onDestroy();
+        if(correctSound != null){
+            correctSound.release();
+        }
+        if(timeoutSound != null){
+            timeoutSound.release();
+        }
+        if(tickSound != null){
+            tickSound.release();
+        }
+    }
     private void getRandomNote(){
         int nextNoteOffset = rand.nextInt(notes.size());
         String nextNote = notes.get(nextNoteOffset);
@@ -213,13 +223,16 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
         counter += 1;
         pdService.startAudio();
         chosenString.setEnabled(false);
+        ((MainActivity)context).getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     private void stopGame(){
         noteHandler.removeCallbacks(noteRunnable);
         startStopButton.setText("Reset");
+        pitchView.setNewPitch(-1);
         pdService.stopAudio();
         chosenString.setEnabled(true);
+        ((MainActivity)context).getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     private void initPd() throws IOException{
@@ -235,15 +248,21 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
         dispatcher.addListener("pitch", new PdListener.Adapter() {
             @Override
             public void receiveFloat(String source, float x) {
-                if (x > 40){
-                    //Log.i(TAG, "pitch: " + x);
-                    if (x < pitchView.getCenterPitch()+1 && x > pitchView.getCenterPitch()-1){
-                        noteCounter++;
-                    } else {
-                        noteCounter = 0;
-                    }
-                    pitchView.setNewPitch(x);
+                Log.i(TAG, "pitch: " + x);
+                if (noteCounter > 1){
+                    correctSound.start();
+                    scorePoint();
+                    scoreView.setText(Integer.toString(score));
+                    setHighScore();
+                    noteCounter = 0;
+                    getRandomNote();
+                } else if (x < pitchView.getCenterPitch()+0.5 && x > pitchView.getCenterPitch()-0.5){
+                    noteCounter++;
+                } else if (x > 0) {
+                    noteCounter = 0;
                 }
+                pitchView.setNewPitch(x);
+                Log.d(TAG, "receiveFloat: " + noteCounter);
             }
         });
     }

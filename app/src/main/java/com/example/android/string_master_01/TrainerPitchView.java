@@ -73,6 +73,10 @@ public class TrainerPitchView extends View {
             rightPaint.setColor(getResources().getColor(R.color.sidePaintOff));
             centerPaint.setColor(getResources().getColor(R.color.centerPaintOn));
             leftPaint.setColor(getResources().getColor(R.color.sidePaintOff));
+        } else if (newPitch < 0){
+            rightPaint.setColor(getResources().getColor(R.color.sidePaintOff));
+            centerPaint.setColor(getResources().getColor(R.color.centerPaintOff));
+            leftPaint.setColor(getResources().getColor(R.color.sidePaintOff));
         } else if (newPitch < getCenterPitch()-1){
             rightPaint.setColor(getResources().getColor(R.color.sidePaintOff));
             centerPaint.setColor(getResources().getColor(R.color.centerPaintOff));

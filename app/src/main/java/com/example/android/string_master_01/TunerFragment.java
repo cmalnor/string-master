@@ -1,6 +1,7 @@
 package com.example.android.string_master_01;
 
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 import org.puredata.android.io.AudioParameters;
@@ -29,12 +31,13 @@ import static android.content.Context.BIND_AUTO_CREATE;
 
 public class TunerFragment extends android.support.v4.app.Fragment{
 
-    private static final String TAG = "GuitarTuner";
+    private static final String TAG = "TunerFragment";
 
     private PdUiDispatcher dispatcher;
     private com.example.android.string_master_01.TunerPitchView pitchView;
     private TextView note;
     private PdService pdService = null;
+    private Context context;
 
     private String[] notes = null;
 
@@ -44,6 +47,9 @@ public class TunerFragment extends android.support.v4.app.Fragment{
         View rootView = inflater.inflate(R.layout.tuner_layout, container, false);
         initGui(rootView);
         notes = ((MainActivity)getActivity()).getNOTES();
+
+        context = getActivity();
+
         //Inflate the layout for this fragment
         return rootView;
     }
@@ -57,7 +63,7 @@ public class TunerFragment extends android.support.v4.app.Fragment{
                 loadPatch();
             } catch (IOException e){
                 Log.e(TAG, e.toString());
-                getActivity().finish();
+                ((MainActivity)context).finish();
             }
         }
 
@@ -69,13 +75,15 @@ public class TunerFragment extends android.support.v4.app.Fragment{
     @Override
     public void onStart(){
         super.onStart();
-        getActivity().bindService(new Intent(getActivity(), PdService.class), pdConnection, BIND_AUTO_CREATE);
+        context.bindService(new Intent(getActivity(), PdService.class), pdConnection, BIND_AUTO_CREATE);
+        ((MainActivity)context).getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     @Override
     public void onStop(){
         super.onStop();
-        getActivity().unbindService(pdConnection);
+        context.unbindService(pdConnection);
+        ((MainActivity)context).getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     private void initGui(View view){

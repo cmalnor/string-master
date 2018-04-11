@@ -81,7 +81,7 @@ public class TunerPitchView extends View {
         pitchLinePaint.setStrokeWidth(5.0f);
         pitchLinePaint.setColor(Color.BLUE);
 
-        needleAnimation.setDuration(100);
+        needleAnimation.setDuration(300);
         needleAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
@@ -101,8 +101,9 @@ public class TunerPitchView extends View {
         canvas.drawLine(mid, 10, mid, this.height - 10, centerLinePaint);
 
         //Draw freq needle
-        float dx = (currentPitch - getCenterPitch());
+        float dx = (currentPitch - getCenterPitch()) / 2;
         startX = mid + (dx * mid);
+
         canvas.drawLine(startX, 10, startX, this.height - 10, pitchLinePaint);
 
     }
