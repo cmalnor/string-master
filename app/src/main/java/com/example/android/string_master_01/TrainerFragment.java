@@ -32,7 +32,7 @@ import org.puredata.core.utils.IoUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Map;
 import java.util.Random;
 
 import static android.content.Context.BIND_AUTO_CREATE;
@@ -45,7 +45,7 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
 
     private Button startStopButton;
     private Spinner chosenString;
-    private ArrayList<String> notes;
+    private Map<String, Integer> notes;
     private TrainerPitchView pitchView;
     private TextView assignedNote;
     private TextView countdownView;
@@ -211,7 +211,7 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
     }
     private void getRandomNote(){
         int nextNoteOffset = rand.nextInt(notes.size());
-        String nextNote = notes.get(nextNoteOffset);
+        String nextNote = notes.keySet().toArray()[nextNoteOffset].toString();
         assignedNote.setText(nextNote);
         pitchView.setCenterPitch(((MainActivity)context).getMIDINote(nextNote, notes));
     }

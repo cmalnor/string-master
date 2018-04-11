@@ -27,8 +27,8 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -71,9 +71,9 @@ public class MainActivity extends AppCompatActivity {
     Convert a note to a MIDI number by using the known MIDI number of the string the note was
     played on
      **/
-    public int getMIDINote(String note, ArrayList<String> stringNotes){
+    public int getMIDINote(String note, Map<String, Integer> stringNotes){
         int offset = 0;
-        switch(stringNotes.get(0)){
+        switch(stringNotes.entrySet().iterator().next().getKey()){
             case "E2":
                 offset = lowEOffset;
                 break;
@@ -93,12 +93,12 @@ public class MainActivity extends AppCompatActivity {
                 offset = highEOffset;
                 break;
         }
-        Log.d(TAG, "getMIDINote: " + (baseMIDINote + offset + stringNotes.indexOf(note)));
-        return baseMIDINote + offset + stringNotes.indexOf(note);
+        Log.d(TAG, "getMIDINote: " + (baseMIDINote + offset + stringNotes.get(note)));
+        return baseMIDINote + offset + stringNotes.get(note);
     }
 
-    private ArrayList<String> generateNotes(String string, int octave){
-        ArrayList<String> output = new ArrayList<>();
+    private Map<String, Integer> generateNotes(String string, int octave){
+        Map<String, Integer> output = new LinkedHashMap<>();
         int offset = -1;
         for(int i = 0; i < noteLetters.length; i++){
             if(noteLetters[i] == string){
@@ -110,16 +110,16 @@ public class MainActivity extends AppCompatActivity {
             return null;
         }
         for(int i = 0; i < numberOfFrets; i++){
-            output.add(noteLetters[offset] + octave);
+            output.put(noteLetters[offset] + octave, i);
             if(noteLetters[offset] != "E" && noteLetters[offset] != "B"){
                 //Number of frets counts a flat/sharp pair as one note
                 i++;
                 if(i < numberOfFrets){
                     if(sharps){
-                        output.add(noteLetters[offset] + "#" + octave);
+                        output.put(noteLetters[offset] + "#" + octave, i);
                     }
                     if(flats){
-                        output.add(noteLetters[offset+1] + "b" + octave);
+                        output.put(noteLetters[offset+1] + "b" + octave, i);
                     }
                 }
             }
@@ -130,31 +130,34 @@ public class MainActivity extends AppCompatActivity {
                 offset++;
             }
         }
-        Log.d(TAG, "generateNotes: Notelist: " + Arrays.toString(output.toArray()));
+        for(String name: output.keySet()){
+            String value = output.get(name).toString();
+            Log.d(TAG, "generateNotes: Note: " + name + " offset: " + value);
+        }
         return output;
     }
 
-    public ArrayList<String> getLowENotes(){
+    public Map<String, Integer> getLowENotes(){
         return generateNotes("E", 2);
     }
 
-    public ArrayList<String> getANotes(){
+    public Map<String, Integer> getANotes(){
         return generateNotes("A", 2);
     }
 
-    public ArrayList<String> getDNotes(){
+    public Map<String, Integer> getDNotes(){
         return generateNotes("D", 3);
     }
 
-    public ArrayList<String> getGNotes(){
+    public Map<String, Integer> getGNotes(){
         return generateNotes("G", 3);
     }
 
-    public ArrayList<String> getBNotes(){
+    public Map<String, Integer> getBNotes(){
         return generateNotes("B", 3);
     }
 
-    public ArrayList<String> getHighENotes(){
+    public Map<String, Integer> getHighENotes(){
         return generateNotes("E", 4);
     }
 
