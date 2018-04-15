@@ -14,30 +14,29 @@ import android.view.View;
 
 public class TrainerPitchView extends View {
 
+    private static final String TAG = "trainerPitchView";
+
     private Paint centerPaint;
     private Paint leftPaint;
     private Paint rightPaint;
     private int padding;
-    Rect leftRect;
-    Rect rightRect;
-    Rect centerRect;
+    private Rect leftRect;
+    private Rect rightRect;
+    private Rect centerRect;
     private int width, height;
     private float centerPitch;
 
-
-    final String TAG = "trainerPitchView";
-
-    public TrainerPitchView(Context context){
+    public TrainerPitchView(Context context) {
         super(context);
         init();
     }
 
-    public TrainerPitchView(Context context, AttributeSet attrs){
+    public TrainerPitchView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    private void init(){
+    private void init() {
         leftPaint = new Paint();
         leftPaint.setStyle(Paint.Style.FILL);
         leftPaint.setColor(getResources().getColor(R.color.sidePaintOff));
@@ -67,30 +66,9 @@ public class TrainerPitchView extends View {
                 width/2+width/10,
                 bottom);
     }
-    
-    public void setNewPitch(float newPitch){
-        if (newPitch > getCenterPitch()-1 && newPitch < getCenterPitch()+1){
-            rightPaint.setColor(getResources().getColor(R.color.sidePaintOff));
-            centerPaint.setColor(getResources().getColor(R.color.centerPaintOn));
-            leftPaint.setColor(getResources().getColor(R.color.sidePaintOff));
-        } else if (newPitch < 0){
-            rightPaint.setColor(getResources().getColor(R.color.sidePaintOff));
-            centerPaint.setColor(getResources().getColor(R.color.centerPaintOff));
-            leftPaint.setColor(getResources().getColor(R.color.sidePaintOff));
-        } else if (newPitch < getCenterPitch()-1){
-            rightPaint.setColor(getResources().getColor(R.color.sidePaintOff));
-            centerPaint.setColor(getResources().getColor(R.color.centerPaintOff));
-            leftPaint.setColor(getResources().getColor(R.color.sidePaintOn));
-        } else {
-            rightPaint.setColor(getResources().getColor(R.color.sidePaintOn));
-            centerPaint.setColor(getResources().getColor(R.color.centerPaintOff));
-            leftPaint.setColor(getResources().getColor(R.color.sidePaintOff));
-        }
-        invalidate();
-    }
 
     @Override
-    protected void onDraw(Canvas canvas){
+    protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         canvas.drawRect(leftRect, leftPaint);
         canvas.drawRect(rightRect, rightPaint);
@@ -106,6 +84,27 @@ public class TrainerPitchView extends View {
         init();
     }
 
+    public void setNewPitch(float newPitch) {
+        if (newPitch > getCenterPitch()-1 && newPitch < getCenterPitch()+1) {
+            rightPaint.setColor(getResources().getColor(R.color.sidePaintOff));
+            centerPaint.setColor(getResources().getColor(R.color.centerPaintOn));
+            leftPaint.setColor(getResources().getColor(R.color.sidePaintOff));
+        } else if (newPitch < 0) {
+            rightPaint.setColor(getResources().getColor(R.color.sidePaintOff));
+            centerPaint.setColor(getResources().getColor(R.color.centerPaintOff));
+            leftPaint.setColor(getResources().getColor(R.color.sidePaintOff));
+        } else if (newPitch < getCenterPitch()-1) {
+            rightPaint.setColor(getResources().getColor(R.color.sidePaintOff));
+            centerPaint.setColor(getResources().getColor(R.color.centerPaintOff));
+            leftPaint.setColor(getResources().getColor(R.color.sidePaintOn));
+        } else {
+            rightPaint.setColor(getResources().getColor(R.color.sidePaintOn));
+            centerPaint.setColor(getResources().getColor(R.color.centerPaintOff));
+            leftPaint.setColor(getResources().getColor(R.color.sidePaintOff));
+        }
+        invalidate();
+    }
+
     //Sets note to tune to.
     //Input: MIDI VALUE of desired pitch
     public void setCenterPitch(float centerPitch) {
@@ -114,7 +113,7 @@ public class TrainerPitchView extends View {
     }
 
     // Return MIDI note value as a float for current reference pitch
-    public float getCenterPitch(){
+    public float getCenterPitch() {
         return centerPitch;
     }
 }

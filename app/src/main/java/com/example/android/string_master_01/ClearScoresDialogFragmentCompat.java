@@ -8,8 +8,9 @@ import android.support.v7.preference.PreferenceDialogFragmentCompat;
  * Created by codymalnor on 3/21/18.
  */
 
-public class ClearScoresDialogFragmentCompat extends PreferenceDialogFragmentCompat{
-    public static ClearScoresDialogFragmentCompat newInstance(String key){
+public class ClearScoresDialogFragmentCompat extends PreferenceDialogFragmentCompat {
+
+    public static ClearScoresDialogFragmentCompat newInstance(String key) {
         final ClearScoresDialogFragmentCompat fragment = new ClearScoresDialogFragmentCompat();
         final Bundle b = new Bundle(1);
         b.putString(ARG_KEY, key);
@@ -19,10 +20,10 @@ public class ClearScoresDialogFragmentCompat extends PreferenceDialogFragmentCom
     }
 
     @Override
-    public void onDialogClosed(boolean positiveResult){
-        if (positiveResult){
+    public void onDialogClosed(boolean positiveResult) {
+        if (positiveResult) {
             DialogPreference preference = getPreference();
-            if (preference instanceof ClearScoresDialogPreference){
+            if (preference instanceof ClearScoresDialogPreference) {
                 ClearScoresDialogPreference clearScoresPreference =
                         ((ClearScoresDialogPreference) preference);
                 clearScoresPreference.eraseScores();

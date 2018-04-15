@@ -8,16 +8,16 @@ import android.support.v4.app.NotificationManagerCompat;
 
 public class NotificationPublisher extends BroadcastReceiver {
 
-    public static String NOTIFICATION = "notification";
-    public static String NOTIFICATION_ID = "id";
-
     private static final String TAG = "NotificationPublisher";
 
-    public void onReceive(Context context, Intent intent){
+    public static String notificationInstance = "notification";
+    public static String notificationId = "id";
+
+    public void onReceive(Context context, Intent intent) {
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
 
-        Notification notification = intent.getParcelableExtra(NOTIFICATION);
-        int id = intent.getIntExtra(NOTIFICATION_ID, 0);
+        Notification notification = intent.getParcelableExtra(notificationInstance);
+        int id = intent.getIntExtra(notificationId, 0);
         notificationManager.notify(id, notification);
     }
 }

@@ -29,7 +29,7 @@ import static android.content.Context.BIND_AUTO_CREATE;
  * Created by codymalnor on 12/25/17.
  */
 
-public class TunerFragment extends android.support.v4.app.Fragment{
+public class TunerFragment extends android.support.v4.app.Fragment {
 
     private static final String TAG = "TunerFragment";
 
@@ -38,17 +38,16 @@ public class TunerFragment extends android.support.v4.app.Fragment{
     private TextView note;
     private PdService pdService = null;
     private Context context;
-
     private String[] notes = null;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState){
+                             Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.tuner_layout, container, false);
         initGui(rootView);
-        notes = ((MainActivity)getActivity()).getNOTES();
-
         context = getActivity();
+
+        notes = ((MainActivity) context).getNOTES();
 
         //Inflate the layout for this fragment
         return rootView;
@@ -58,12 +57,12 @@ public class TunerFragment extends android.support.v4.app.Fragment{
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
             pdService = ((PdService.PdBinder)service).getService();
-            try{
+            try {
                 initPd();
                 loadPatch();
-            } catch (IOException e){
+            } catch (IOException e) {
                 Log.e(TAG, e.toString());
-                ((MainActivity)context).finish();
+                ((MainActivity) context).finish();
             }
         }
 
@@ -73,20 +72,26 @@ public class TunerFragment extends android.support.v4.app.Fragment{
     };
 
     @Override
-    public void onStart(){
+    public void onStart() {
         super.onStart();
-        context.bindService(new Intent(getActivity(), PdService.class), pdConnection, BIND_AUTO_CREATE);
-        ((MainActivity)context).getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        context.bindService(new Intent(getActivity(), PdService.class),
+                pdConnection,
+                BIND_AUTO_CREATE);
+        ((MainActivity) context).getWindow()
+                .addFlags(WindowManager
+                .LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     @Override
-    public void onStop(){
+    public void onStop() {
         super.onStop();
         context.unbindService(pdConnection);
-        ((MainActivity)context).getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        ((MainActivity) context).getWindow()
+                .clearFlags(WindowManager
+                .LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
-    private void initGui(View view){
+    private void initGui(View view) {
         pitchView = (TunerPitchView) view.findViewById(R.id.pitch_view);
         pitchView.setCenterPitch(45);
 
@@ -94,7 +99,7 @@ public class TunerFragment extends android.support.v4.app.Fragment{
         note.setText("A");
     }
 
-    private void initPd() throws IOException{
+    private void initPd() throws IOException {
         //Configure the audio glue
         int sampleRate = AudioParameters.suggestSampleRate();
         Log.i(TAG, "Sample Rate: " + sampleRate);
@@ -108,7 +113,7 @@ public class TunerFragment extends android.support.v4.app.Fragment{
         dispatcher.addListener("pitch", new PdListener.Adapter() {
             @Override
             public void receiveFloat(String source, float x) {
-                if (x > 30){
+                if (x > 30) {
                     findClosestString(x);
                     //Log.i(TAG, "pitch: " + x);
                     pitchView.setNewPitch(x);
@@ -117,7 +122,7 @@ public class TunerFragment extends android.support.v4.app.Fragment{
         });
     }
 
-    private void loadPatch() throws IOException{
+    private void loadPatch() throws IOException {
         File dir = getActivity().getFilesDir();
         IoUtils.extractZipResource(
                 getResources().openRawResource(R.raw.tuner), dir, true);
@@ -125,9 +130,9 @@ public class TunerFragment extends android.support.v4.app.Fragment{
         PdBase.openPatch(patchFile.getAbsolutePath());
     }
 
-    public void findClosestString(float x){
+    public void findClosestString(float x) {
         float midiNote = Math.round(x);
-        int noteOffset = (int)midiNote - 40;
+        int noteOffset = (int) midiNote - 40;
         if (pitchView.getCenterPitch() != midiNote) {
             if (midiNote < 40) {
                 pitchView.setCenterPitch(40);

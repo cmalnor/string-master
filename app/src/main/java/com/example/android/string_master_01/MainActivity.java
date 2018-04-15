@@ -32,134 +32,37 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
-    private DrawerLayout mDrawer;
-    private Toolbar toolbar;
-    private NavigationView nvDrawer;
-    private ActionBarDrawerToggle drawerToggle;
-
     private static final int REQUEST_RECORD_AUDIO_PERMISSION_TRAINER = 200;
     private static final int REQUEST_RECORD_AUDIO_PERMISSION_TUNER = 201;
+    private static final String TAG = "MainActivity";
+    private static final String CHANNEL_ID = "com.example.string_master.ANDROID";
 
     // Notes on a guitar using Scientific Pitch Notation (SPN)
     // MIDI notes 40 to 86
-    private final String[] NOTES = {
+    private static final String[] NOTES = {
             "E2", "F2", "F#2/Gb2", "G2", "G#2/Ab2", "A2", "A#2/Bb2", "B2", "C3", "C#3/Db3",
             "D3", "D#3/Eb3", "E3", "F3", "F#3/Gb3", "G3", "G#3/Ab3", "A3", "A#3/Bb3", "B3",
             "C4", "C#4/Db4", "D4", "D#4/Eb4", "E4", "F4", "F#4/Gb4", "G4", "G#4/Ab4", "A4",
             "A#4/Bb4", "B4", "B#4/Cb5", "C5", "C#5/Db5", "D5", "D#5/Eb5", "E5", "F5", "F#5/Gb5",
             "G5", "G#5/Ab5", "A5", "A#5/Bb5", "B5", "C6", "C#6/Db6"};
-    private final String[] noteLetters = {"C", "D", "E", "F", "G", "A", "B"};
+    private static final String[] NOTE_LETTERS = {"C", "D", "E", "F", "G", "A", "B"};
+    private static final int LOW_E_OFFSET = 0;
+    private static final int A_OFFSET = 5;
+    private static final int D_OFFSET = 10;
+    private static final int G_OFFSET = 15;
+    private static final int B_OFFSET = 19;
+    private static final int HIGH_E_OFFSET = 24;
+    private static final int BASE_MIDI_NOTE = 40;
+
+    private DrawerLayout mDrawer;
+    private Toolbar toolbar;
+    private NavigationView nvDrawer;
+    private ActionBarDrawerToggle drawerToggle;
+    private NotificationCompat.Builder mBuilder;
     private boolean sharps;
     private boolean flats;
-
-    private final int lowEOffset = 0;
-    private final int AOffset = 5;
-    private final int DOffset = 10;
-    private final int GOffset = 15;
-    private final int BOffset = 19;
-    private final int highEOffset = 24;
     private int numberOfFrets;
     private int gameLength;
-    private final int baseMIDINote = 40;
-
-    private final String TAG = "MainActivity";
-    private final String CHANNEL_ID = "com.example.string_master.ANDROID";
-
-    private NotificationCompat.Builder mBuilder;
-
-    /**
-    Convert a note to a MIDI number by using the known MIDI number of the string the note was
-    played on
-     **/
-    public int getMIDINote(String note, Map<String, Integer> stringNotes){
-        int offset = 0;
-        switch(stringNotes.entrySet().iterator().next().getKey()){
-            case "E2":
-                offset = lowEOffset;
-                break;
-            case "A2":
-                offset = AOffset;
-                break;
-            case "D3":
-                offset = DOffset;
-                break;
-            case "G3":
-                offset = GOffset;
-                break;
-            case "B3":
-                offset = BOffset;
-                break;
-            case "E4":
-                offset = highEOffset;
-                break;
-        }
-        Log.d(TAG, "getMIDINote: " + (baseMIDINote + offset + stringNotes.get(note)));
-        return baseMIDINote + offset + stringNotes.get(note);
-    }
-
-    private Map<String, Integer> generateNotes(String string, int octave){
-        Map<String, Integer> output = new LinkedHashMap<>();
-        int offset = -1;
-        for(int i = 0; i < noteLetters.length; i++){
-            if(noteLetters[i] == string){
-                offset = i;
-                break;
-            }
-        }
-        if (offset == -1){
-            return null;
-        }
-        for(int i = 0; i < numberOfFrets; i++){
-            output.put(noteLetters[offset] + octave, i);
-            if(noteLetters[offset] != "E" && noteLetters[offset] != "B"){
-                //Number of frets counts a flat/sharp pair as one note
-                i++;
-                if(i < numberOfFrets){
-                    if(sharps){
-                        output.put(noteLetters[offset] + "#" + octave, i);
-                    }
-                    if(flats){
-                        output.put(noteLetters[offset+1] + "b" + octave, i);
-                    }
-                }
-            }
-            if(offset == noteLetters.length-1){
-                offset = 0;
-                octave++;
-            } else {
-                offset++;
-            }
-        }
-        for(String name: output.keySet()){
-            String value = output.get(name).toString();
-            Log.d(TAG, "generateNotes: Note: " + name + " offset: " + value);
-        }
-        return output;
-    }
-
-    public Map<String, Integer> getLowENotes(){
-        return generateNotes("E", 2);
-    }
-
-    public Map<String, Integer> getANotes(){
-        return generateNotes("A", 2);
-    }
-
-    public Map<String, Integer> getDNotes(){
-        return generateNotes("D", 3);
-    }
-
-    public Map<String, Integer> getGNotes(){
-        return generateNotes("G", 3);
-    }
-
-    public Map<String, Integer> getBNotes(){
-        return generateNotes("B", 3);
-    }
-
-    public Map<String, Integer> getHighENotes(){
-        return generateNotes("E", 4);
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -177,17 +80,25 @@ public class MainActivity extends AppCompatActivity {
 
         setupDrawerContent(nvDrawer);
 
-        if(savedInstanceState == null){
+        if (savedInstanceState == null) {
             checkPermissions(REQUEST_RECORD_AUDIO_PERMISSION_TRAINER);
         }
 
         //Set preference values with previously saved values (if exists)
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        gameLength = (sharedPref.getInt(getString(R.string.com_example_string_master_SETTING_GAME_LENGTH), 0)+1)*30;
-        numberOfFrets = sharedPref.getInt(getString(R.string.com_example_string_master_SETTING_NUMBER_FRETS), 21)+1;
-        sharps = sharedPref.getBoolean(getString(R.string.com_example_string_master_SETTING_SHARPS), true);
-        flats = sharedPref.getBoolean(getString(R.string.com_example_string_master_SETTING_FLATS), true);
+        gameLength = (sharedPref
+                .getInt(getString(R.string.com_example_string_master_SETTING_GAME_LENGTH),
+                        0)+1)*30;
+        numberOfFrets = sharedPref
+                .getInt(getString(R.string.com_example_string_master_SETTING_NUMBER_FRETS),
+                        21)+1;
+        sharps = sharedPref
+                .getBoolean(getString(R.string.com_example_string_master_SETTING_SHARPS),
+                        true);
+        flats = sharedPref
+                .getBoolean(getString(R.string.com_example_string_master_SETTING_FLATS),
+                        true);
 
         //Setup notification channel if running Oreo+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -221,8 +132,8 @@ public class MainActivity extends AppCompatActivity {
                 .setAutoCancel(true);
 
         Intent notificationIntent = new Intent(this, NotificationPublisher.class);
-        notificationIntent.putExtra(NotificationPublisher.NOTIFICATION, mBuilder.build());
-        notificationIntent.putExtra(NotificationPublisher.NOTIFICATION_ID, 1);
+        notificationIntent.putExtra(NotificationPublisher.notificationInstance, mBuilder.build());
+        notificationIntent.putExtra(NotificationPublisher.notificationId, 1);
         PendingIntent pendingNotificationIntent = PendingIntent.getBroadcast(
                 this,
                 0,
@@ -242,26 +153,27 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        drawerToggle.syncState();
+    }
+
     private ActionBarDrawerToggle setupDrawerToggle() {
-        // NOTE: Make sure you pass in a valid toolbar reference.  ActionBarDrawToggle() does not require it
+        // NOTE: Make sure you pass in a valid toolbar reference.
+        // ActionBarDrawToggle() does not require it
         // and will not render the hamburger icon without it.
         return new ActionBarDrawerToggle(this, mDrawer, toolbar, R.string.drawer_open,
                 R.string.drawer_close);
     }
 
     @Override
-    protected void onPostCreate(Bundle savedInstanceState){
-        super.onPostCreate(savedInstanceState);
-        drawerToggle.syncState();
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig){
+    public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         drawerToggle.onConfigurationChanged(newConfig);
     }
 
-    private void setupDrawerContent(NavigationView navigationView){
+    private void setupDrawerContent(NavigationView navigationView) {
         navigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
@@ -274,9 +186,17 @@ public class MainActivity extends AppCompatActivity {
         );
     }
 
-    public void selectDrawerItem(MenuItem item){
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (drawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void selectDrawerItem(MenuItem item) {
         Class fragmentClass;
-        switch(item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.nav_trainer:
                 fragmentClass = TrainerFragment.class;
                 break;
@@ -289,11 +209,11 @@ public class MainActivity extends AppCompatActivity {
             default:
                 fragmentClass = TrainerFragment.class;
         }
-        if(fragmentClass == TrainerFragment.class){
+        if (fragmentClass == TrainerFragment.class) {
             checkPermissions(REQUEST_RECORD_AUDIO_PERMISSION_TRAINER);
-        } else if (fragmentClass == TunerFragment.class){
+        } else if (fragmentClass == TunerFragment.class) {
             checkPermissions(REQUEST_RECORD_AUDIO_PERMISSION_TUNER);
-        } else{
+        } else {
             swapFragment(fragmentClass);
         }
 
@@ -308,6 +228,19 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void checkPermissions(int requestCode) {
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.RECORD_AUDIO},
+                    requestCode);
+        } else if (requestCode == REQUEST_RECORD_AUDIO_PERMISSION_TUNER) {
+            swapFragment(TunerFragment.class);
+        } else if (requestCode == REQUEST_RECORD_AUDIO_PERMISSION_TRAINER) {
+            swapFragment(TrainerFragment.class);
+        }
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
@@ -318,7 +251,9 @@ public class MainActivity extends AppCompatActivity {
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     swapFragment(TrainerFragment.class);
                 } else {
-                    Toast toast = Toast.makeText(this, "Record Audio Permission Required!", Toast.LENGTH_SHORT);
+                    Toast toast = Toast.makeText(this,
+                            "Record Audio Permission Required!",
+                            Toast.LENGTH_SHORT);
                     toast.show();
                 }
                 return;
@@ -328,7 +263,9 @@ public class MainActivity extends AppCompatActivity {
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     swapFragment(TunerFragment.class);
                 } else {
-                    Toast toast = Toast.makeText(this, "Record Audio Permission Required!", Toast.LENGTH_SHORT);
+                    Toast toast = Toast.makeText(this,
+                            "Record Audio Permission Required!",
+                            Toast.LENGTH_SHORT);
                     toast.show();
                 }
                 return;
@@ -336,32 +273,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item){
-        if(drawerToggle.onOptionsItemSelected(item)){
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void checkPermissions(int requestCode){
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.RECORD_AUDIO},
-                    requestCode);
-        } else if (requestCode == REQUEST_RECORD_AUDIO_PERMISSION_TUNER){
-            swapFragment(TunerFragment.class);
-        } else if (requestCode == REQUEST_RECORD_AUDIO_PERMISSION_TRAINER) {
-            swapFragment(TrainerFragment.class);
-        }
-    }
-
-    public void swapFragment(Class fragmentClass){
+    public void swapFragment(Class fragmentClass) {
         android.support.v4.app.Fragment fragment = null;
-        try{
-            fragment = (android.support.v4.app.Fragment) fragmentClass.newInstance();
-        } catch (Exception e){
+        try {
+            fragment = (android.support.v4.app.Fragment)fragmentClass.newInstance();
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -369,6 +285,100 @@ public class MainActivity extends AppCompatActivity {
         android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.flContent, fragment).commit();
 
+    }
+
+    /**
+     Convert a note to a MIDI number by using the known MIDI number of the string the note was
+     played on
+     **/
+    public int getMIDINote(String note, Map<String, Integer> stringNotes) {
+        int offset = 0;
+        switch (stringNotes.entrySet().iterator().next().getKey()) {
+            case "E2":
+                offset = LOW_E_OFFSET;
+                break;
+            case "A2":
+                offset = A_OFFSET;
+                break;
+            case "D3":
+                offset = D_OFFSET;
+                break;
+            case "G3":
+                offset = G_OFFSET;
+                break;
+            case "B3":
+                offset = B_OFFSET;
+                break;
+            case "E4":
+                offset = HIGH_E_OFFSET;
+                break;
+        }
+        Log.d(TAG, "getMIDINote: " + (BASE_MIDI_NOTE + offset + stringNotes.get(note)));
+        return BASE_MIDI_NOTE + offset + stringNotes.get(note);
+    }
+
+    private Map<String, Integer> generateNotes(String string, int octave) {
+        Map<String, Integer> output = new LinkedHashMap<>();
+        int offset = -1;
+        for (int i = 0; i < NOTE_LETTERS.length; i++) {
+            if (NOTE_LETTERS[i] == string) {
+                offset = i;
+                break;
+            }
+        }
+        if (offset == -1) {
+            return null;
+        }
+        for (int i = 0; i < numberOfFrets; i++) {
+            output.put(NOTE_LETTERS[offset] + octave, i);
+            if (NOTE_LETTERS[offset] != "E" && NOTE_LETTERS[offset] != "B") {
+                //Number of frets counts a flat/sharp pair as one note
+                i++;
+                if (i < numberOfFrets) {
+                    if (sharps) {
+                        output.put(NOTE_LETTERS[offset] + "#" + octave, i);
+                    }
+                    if (flats) {
+                        output.put(NOTE_LETTERS[offset+1] + "b" + octave, i);
+                    }
+                }
+            }
+            if (offset == NOTE_LETTERS.length-1) {
+                offset = 0;
+                octave++;
+            } else {
+                offset++;
+            }
+        }
+        for (String name: output.keySet()) {
+            String value = output.get(name).toString();
+            Log.d(TAG, "generateNotes: Note: " + name + " offset: " + value);
+        }
+        return output;
+    }
+
+    public Map<String, Integer> getLowENotes() {
+        return generateNotes("E", 2);
+    }
+
+    public Map<String, Integer> getANotes() {
+        return generateNotes("A", 2);
+    }
+
+    public Map<String, Integer> getDNotes() {
+        return generateNotes("D", 3);
+    }
+
+    public Map<String, Integer> getGNotes() {
+        return generateNotes("G", 3);
+    }
+
+    public Map<String, Integer> getBNotes() {
+        return generateNotes("B", 3);
+    }
+
+    public Map<String, Integer> getHighENotes() {
+        return generateNotes("E", 4);
     }
 
     public int getGameLength() {
@@ -388,27 +398,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public int getLowEOffset() {
-        return lowEOffset;
+        return LOW_E_OFFSET;
     }
 
     public int getAOffset() {
-        return AOffset;
+        return A_OFFSET;
     }
 
     public int getDOffset() {
-        return DOffset;
+        return D_OFFSET;
     }
 
     public int getGOffset() {
-        return GOffset;
+        return G_OFFSET;
     }
 
     public int getBOffset() {
-        return BOffset;
+        return B_OFFSET;
     }
 
     public int getHighEOffset() {
-        return highEOffset;
+        return HIGH_E_OFFSET;
     }
 
     public String[] getNOTES() {

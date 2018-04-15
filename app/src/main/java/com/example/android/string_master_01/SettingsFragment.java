@@ -15,12 +15,10 @@ import android.util.Log;
  */
 
 public class SettingsFragment extends PreferenceFragmentCompat
-        implements SharedPreferences.OnSharedPreferenceChangeListener{
+        implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String TAG = "SettingsFragment";
-    private android.support.v7.preference.SeekBarPreference fretsSeekBar;
-    private android.support.v7.preference.SeekBarPreference timeSeekBar;
-    private android.support.v7.preference.Preference clearScoresDialog;
+
     private int numberOfNotes;
     private int numberOfFrets;
     private SharedPreferences sharedPreferences;
@@ -33,9 +31,12 @@ public class SettingsFragment extends PreferenceFragmentCompat
     private boolean sharps;
     private boolean flats;
     private Context context;
+    private android.support.v7.preference.SeekBarPreference fretsSeekBar;
+    private android.support.v7.preference.SeekBarPreference timeSeekBar;
+    private android.support.v7.preference.Preference clearScoresDialog;
 
     @Override
-    public void onCreatePreferences(Bundle bundle, String s){
+    public void onCreatePreferences(Bundle bundle, String s) {
         addPreferencesFromResource(R.xml.preferences);
         KEY_NUMBER_FRETS = getString(R.string.com_example_string_master_SETTING_NUMBER_FRETS);
         KEY_GAME_LENGTH = getString(R.string.com_example_string_master_SETTING_GAME_LENGTH);
@@ -45,69 +46,72 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
-        fretsSeekBar = (SeekBarPreference)findPreference(KEY_NUMBER_FRETS);
+        fretsSeekBar = (SeekBarPreference) findPreference(KEY_NUMBER_FRETS);
         numberOfFrets = sharedPreferences.getInt(KEY_NUMBER_FRETS, 21)+1;
         fretsSeekBar.setTitle(getString(R.string.text_number_frets, numberOfFrets));
 
-        timeSeekBar = (SeekBarPreference)findPreference(KEY_GAME_LENGTH);
+        timeSeekBar = (SeekBarPreference) findPreference(KEY_GAME_LENGTH);
         gameLength = (sharedPreferences.getInt(KEY_GAME_LENGTH, 0)+1)*30;
         timeSeekBar.setTitle(getString(R.string.text_game_length, gameLength));
 
-        numberOfNotes = ((MainActivity)getActivity()).getNOTES().length;
+        numberOfNotes = ((MainActivity) getActivity()).getNOTES().length;
 
 
         context = getActivity();
     }
 
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key){
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         Log.d(TAG, "onSharedPreferenceChanged: ");
-        if(key.equals(KEY_GAME_LENGTH)){
+        if (key.equals(KEY_GAME_LENGTH)) {
 
             //length of game in increments of 30s: 0-240s
             gameLength = (sharedPreferences.getInt(KEY_GAME_LENGTH, 0)+1)*30;
-            ((MainActivity)context).setGameLength(gameLength);
+            ((MainActivity) context).setGameLength(gameLength);
             timeSeekBar.setTitle(getString(R.string.text_game_length, gameLength));
-        } else if (key.equals(KEY_NUMBER_FRETS)){
+        } else if (key.equals(KEY_NUMBER_FRETS)) {
 
             //number of frets tested: 1-23
             numberOfFrets = sharedPreferences.getInt(KEY_NUMBER_FRETS, 21)+1;
-            ((MainActivity)context).setNumberOfFrets(numberOfFrets);
+            ((MainActivity) context).setNumberOfFrets(numberOfFrets);
             fretsSeekBar.setTitle(getString(R.string.text_number_frets, numberOfFrets));
-        } else if (key.equals(KEY_SHARPS)){
+        } else if (key.equals(KEY_SHARPS)) {
 
             //include sharps in note list
             sharps = sharedPreferences.getBoolean(KEY_SHARPS, true);
-            ((MainActivity)context).setSharps(sharps);
-        } else if (key.equals(KEY_FLATS)){
+            ((MainActivity) context).setSharps(sharps);
+        } else if (key.equals(KEY_FLATS)) {
 
             //include flats in note list
             flats = sharedPreferences.getBoolean(KEY_FLATS, true);
-            ((MainActivity)context).setFlats(flats);
+            ((MainActivity) context).setFlats(flats);
         }
     }
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
-        getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+        getPreferenceScreen().getSharedPreferences()
+                .registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
-    public void onPause(){
+    public void onPause() {
         super.onPause();
-        getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+        getPreferenceScreen().getSharedPreferences()
+                .unregisterOnSharedPreferenceChangeListener(this);
     }
 
     @Override
-    public void onDisplayPreferenceDialog(Preference preference){
+    public void onDisplayPreferenceDialog(Preference preference) {
         DialogFragment dialogFragment = null;
-        if(preference instanceof ClearScoresDialogPreference){
+        if (preference instanceof ClearScoresDialogPreference) {
             dialogFragment = ClearScoresDialogFragmentCompat.newInstance(preference.getKey());
         }
-        if(dialogFragment != null){
+        if (dialogFragment != null) {
             dialogFragment.setTargetFragment(this, 0);
-            dialogFragment.show(this.getFragmentManager(), "android.support.v7.preference" + ".PreferenceFragment.DIALOG");
-        } else{
+            dialogFragment.show(this.getFragmentManager(),
+                    "android.support.v7.preference" + ".PreferenceFragment.DIALOG");
+        } else {
             super.onDisplayPreferenceDialog(preference);
         }
     }

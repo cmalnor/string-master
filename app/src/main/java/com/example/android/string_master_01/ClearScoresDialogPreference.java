@@ -10,34 +10,34 @@ import android.util.Log;
  */
 
 public class ClearScoresDialogPreference extends DialogPreference {
-    private String TAG = "StringMasterClearScoresPref";
-    private  int mDialogLayoutResId = R.layout.clear_scores_dialog_pref;
+
+    private static final String TAG = "ClearScoresPref";
+
+    private int dialogLayoutResId = R.layout.clear_scores_dialog_pref;
 
     public ClearScoresDialogPreference(Context context){
         this(context, null);
     }
 
-    public ClearScoresDialogPreference(Context context, AttributeSet  attrs){
+    public ClearScoresDialogPreference(Context context, AttributeSet  attrs) {
         this(context, attrs, 0);
     }
 
-    public ClearScoresDialogPreference(Context context, AttributeSet attrs, int defStyleAttr){
+    public ClearScoresDialogPreference(Context context, AttributeSet attrs, int defStyleAttr) {
         this(context, attrs, defStyleAttr, defStyleAttr);
     }
 
     public  ClearScoresDialogPreference(Context context, AttributeSet attrs, int defStyleAttr,
-                                        int defStyleRes){
+                                        int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-
-
     }
 
     @Override
-    public int getDialogLayoutResource(){
-        return mDialogLayoutResId;
+    public int getDialogLayoutResource() {
+        return dialogLayoutResId;
     }
 
-    public void eraseScores(){
+    public void eraseScores() {
         Log.d(TAG, "eraseScores: Erasing scores!");
     }
 }

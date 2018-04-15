@@ -41,7 +41,9 @@ import static android.content.Context.BIND_AUTO_CREATE;
  * Created by codymalnor on 1/14/18.
  */
 
-public class TrainerFragment extends Fragment implements AdapterView.OnItemSelectedListener{
+public class TrainerFragment extends Fragment implements AdapterView.OnItemSelectedListener {
+
+    private static final String TAG = "TrainerFragment";
 
     private Button startStopButton;
     private Spinner chosenString;
@@ -81,11 +83,10 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
         }
     };
 
-    private String TAG = "TrainerFragment";
-
-
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             ViewGroup container,
+                             Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.trainer_layout, container, false);
         context = getActivity();
@@ -95,32 +96,36 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
 
         countdownView = (TextView) rootView.findViewById(R.id.countdown);
         assignedNote = (TextView) rootView.findViewById(R.id.assigned_note);
+
         highScoreView = (TextView) rootView.findViewById(R.id.trainer_high_score);
-        setHighScore();
-        startStopButton = (Button) rootView.findViewById(R.id.start_stop_button);
         scoreView = (TextView) rootView.findViewById(R.id.trainer_score);
+        setHighScore();
+
+        startStopButton = (Button) rootView.findViewById(R.id.start_stop_button);
         startStopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (startStopButton.getText() == "Stop"){
+                if (startStopButton.getText() == "Stop") {
                     stopGame();
-                } else if (startStopButton.getText() == "Start"){
+                } else if (startStopButton.getText() == "Start") {
                     startGame();
-                } else{
+                } else {
                     resetGame();
                 }
             }
         });
+
         chosenString = (Spinner) rootView.findViewById(R.id.string_choice);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
                 R.array.strings, android.R.layout.simple_spinner_dropdown_item);
         chosenString.setAdapter(adapter);
         chosenString.setOnItemSelectedListener(this);
 
-        notes = ((MainActivity)context).getLowENotes();
+        notes = ((MainActivity) context).getLowENotes();
 
-        pitchView = (TrainerPitchView)rootView.findViewById(R.id.trainer_pitch_view);
+        pitchView = (TrainerPitchView) rootView.findViewById(R.id.trainer_pitch_view);
         pitchView.setCenterPitch(45);
+
         correctSound = MediaPlayer.create(context, R.raw.correct);
         timeoutSound = MediaPlayer.create(context, R.raw.out_of_time);
         tickSound = MediaPlayer.create(context, R.raw.clock_tick);
@@ -129,51 +134,16 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
         return rootView;
     }
 
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id){
-        Log.d(TAG, "onItemSelected: " + parent.getItemAtPosition(pos));
-        selectedString = pos;
-        setHighScore();
-        switch(pos){
-            case 0:
-                notes = ((MainActivity)context).getLowENotes();
-                break;
-            case 1:
-                notes = ((MainActivity)context).getANotes();
-                break;
-            case 2:
-                notes = ((MainActivity)context).getDNotes();
-                break;
-            case 3:
-                notes = ((MainActivity)context).getGNotes();
-                break;
-            case 4:
-                notes = ((MainActivity)context).getBNotes();
-                break;
-            case 5:
-                notes = ((MainActivity)context).getHighENotes();
-                break;
-            default:
-                notes = ((MainActivity)context).getLowENotes();
-                break;
-        }
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> parent){
-
-    }
-
     private final ServiceConnection pdConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
-            pdService = ((PdService.PdBinder)service).getService();
-            try{
+            pdService = ((PdService.PdBinder) service).getService();
+            try {
                 initPd();
                 loadPatch();
-            } catch (IOException e){
+            } catch (IOException e) {
                 Log.e(TAG, e.toString());
-                ((MainActivity)context).finish();
+                ((MainActivity) context).finish();
             }
         }
 
@@ -183,59 +153,34 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
     };
 
     @Override
-    public void onStart(){
+    public void onStart() {
         super.onStart();
         context.bindService(new Intent(context, PdService.class), pdConnection, BIND_AUTO_CREATE);
     }
 
     @Override
-    public void onStop(){
+    public void onStop() {
         super.onStop();
         noteHandler.removeCallbacks(noteRunnable);
         context.unbindService(pdConnection);
     }
 
     @Override
-    public void onDestroy(){
+    public void onDestroy() {
         Log.d(TAG, "onDestroy: called");
         super.onDestroy();
-        if(correctSound != null){
+        if (correctSound != null) {
             correctSound.release();
         }
-        if(timeoutSound != null){
+        if (timeoutSound != null) {
             timeoutSound.release();
         }
-        if(tickSound != null){
+        if (tickSound != null)  {
             tickSound.release();
         }
     }
-    private void getRandomNote(){
-        int nextNoteOffset = rand.nextInt(notes.size());
-        String nextNote = notes.keySet().toArray()[nextNoteOffset].toString();
-        assignedNote.setText(nextNote);
-        pitchView.setCenterPitch(((MainActivity)context).getMIDINote(nextNote, notes));
-    }
 
-    private void startGame(){
-        noteHandler.post(noteRunnable);
-        startStopButton.setText("Stop");
-        getRandomNote();
-        counter += 1;
-        pdService.startAudio();
-        chosenString.setEnabled(false);
-        ((MainActivity)context).getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-    }
-
-    private void stopGame(){
-        noteHandler.removeCallbacks(noteRunnable);
-        startStopButton.setText("Reset");
-        pitchView.setNewPitch(-1);
-        pdService.stopAudio();
-        chosenString.setEnabled(true);
-        ((MainActivity)context).getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-    }
-
-    private void initPd() throws IOException{
+    private void initPd() throws IOException {
         //Configure the audio glue
         int sampleRate = AudioParameters.suggestSampleRate();
         Log.i(TAG, "Sample Rate: " + sampleRate);
@@ -249,14 +194,15 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
             @Override
             public void receiveFloat(String source, float x) {
                 Log.i(TAG, "pitch: " + x);
-                if (noteCounter > 1){
+                if (noteCounter > 1) {
                     correctSound.start();
                     scorePoint();
                     scoreView.setText(Integer.toString(score));
                     setHighScore();
                     noteCounter = 0;
                     getRandomNote();
-                } else if (x < pitchView.getCenterPitch()+0.5 && x > pitchView.getCenterPitch()-0.5){
+                } else if (x < pitchView.getCenterPitch()+0.5
+                        && x > pitchView.getCenterPitch()-0.5) {
                     noteCounter++;
                 } else if (x > 0) {
                     noteCounter = 0;
@@ -267,7 +213,7 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
         });
     }
 
-    private void loadPatch() throws IOException{
+    private void loadPatch() throws IOException {
         File dir = context.getFilesDir();
         IoUtils.extractZipResource(
                 getResources().openRawResource(R.raw.tuner), dir, true);
@@ -275,37 +221,102 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
         PdBase.openPatch(patchFile.getAbsolutePath());
     }
 
-    private void scorePoint(){
-        score += 1;
+    private void getRandomNote() {
+        int nextNoteOffset = rand.nextInt(notes.size());
+        String nextNote = notes.keySet().toArray()[nextNoteOffset].toString();
+        assignedNote.setText(nextNote);
+        pitchView.setCenterPitch(((MainActivity) context).getMIDINote(nextNote, notes));
     }
 
-    private void resetGame(){
+    private void startGame() {
+        noteHandler.post(noteRunnable);
+        startStopButton.setText("Stop");
+        getRandomNote();
+        counter += 1;
+        pdService.startAudio();
+        chosenString.setEnabled(false);
+        ((MainActivity) context).getWindow()
+                .addFlags(WindowManager
+                .LayoutParams.FLAG_KEEP_SCREEN_ON);
+    }
+
+    private void stopGame() {
+        noteHandler.removeCallbacks(noteRunnable);
+        startStopButton.setText("Reset");
+        pitchView.setNewPitch(-1);
+        pdService.stopAudio();
+        chosenString.setEnabled(true);
+        ((MainActivity) context).getWindow()
+                .clearFlags(WindowManager
+                .LayoutParams.FLAG_KEEP_SCREEN_ON);
+    }
+
+    private void resetGame() {
         score = 0;
-        counter = ((MainActivity)context).getGameLength();
+        counter = ((MainActivity) context).getGameLength();
         countdownView.setText(Integer.toString(counter));
         assignedNote.setText("Tap 'Start' to Begin");
         scoreView.setText(Integer.toString(score));
         startStopButton.setText("Start");
     }
 
-    private void setHighScore(){
+    private void setHighScore() {
         //If score when game is stopped is a new high score for this game length, save it
         String key = KEY_HIGH_SCORE+
-                ((MainActivity)context).getNumberOfFrets()+
+                ((MainActivity) context).getNumberOfFrets()+
                 '_'+
                 selectedString+
                 '_'+
-                ((MainActivity)context).getGameLength();
+                ((MainActivity) context).getGameLength();
         Log.d(TAG, "setHighScore: "+key);
         int highScore = sharedPreferences.getInt(key, 0);
-        if(!sharedPreferences.contains(key) ||
-                highScore < score){
+        if (!sharedPreferences.contains(key)
+                || highScore < score) {
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putInt(key, score);
             editor.apply();
             highScoreView.setText(getString(R.string.text_high_score, score));
-        } else{
+        } else {
             highScoreView.setText(getString(R.string.text_high_score, highScore));
         }
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+        Log.d(TAG, "onItemSelected: " + parent.getItemAtPosition(pos));
+        selectedString = pos;
+        setHighScore();
+        switch (pos) {
+            case 0:
+                notes = ((MainActivity) context).getLowENotes();
+                break;
+            case 1:
+                notes = ((MainActivity) context).getANotes();
+                break;
+            case 2:
+                notes = ((MainActivity) context).getDNotes();
+                break;
+            case 3:
+                notes = ((MainActivity) context).getGNotes();
+                break;
+            case 4:
+                notes = ((MainActivity) context).getBNotes();
+                break;
+            case 5:
+                notes = ((MainActivity) context).getHighENotes();
+                break;
+            default:
+                notes = ((MainActivity) context).getLowENotes();
+                break;
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
+    }
+
+    private void scorePoint() {
+        score += 1;
     }
 }

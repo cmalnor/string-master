@@ -15,10 +15,9 @@ import android.view.View;
 
 public class TunerPitchView extends View {
 
-    private static final String TAG = "GuitarTuner";
+    private static final String TAG = "TunerPitchView";
 
     private float currentPitch;
-
     private Paint centerLinePaint;
     private Paint pitchLinePaint;
     private ValueAnimator needleAnimation = new ValueAnimator();
@@ -40,39 +39,7 @@ public class TunerPitchView extends View {
         init();
     }
 
-    //Sets current pitch on tuner
-    public void setTunerPitch(float pitch) {
-        this.currentPitch = pitch;
-        invalidate();
-    }
-
-    //Sets current pitch read from mic
-    public void setNewPitch(float newPitch){
-
-        //Stop needle animation where it is (if in progress) and begin moving to new value
-        if (needleAnimation.isRunning()){
-            setTunerPitch((float) needleAnimation.getAnimatedValue());
-
-            needleAnimation.end();
-           // setCurrentPitch((float) needleAnimation.getAnimatedValue());
-            Log.d(TAG, "ended animation");
-        }
-        needleAnimation = ValueAnimator.ofFloat(this.currentPitch, newPitch);
-        needleAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                setTunerPitch((float) valueAnimator.getAnimatedValue());
-                //Log.d(TAG, "Current pitch value: " + getCurrentPitch());
-
-            }
-        });
-        needleAnimation.start();
-        Log.d(TAG, "setNewPitch: started animation");
-
-        invalidate();
-    }
-
-    private void init(){
+    private void init() {
         centerLinePaint = new Paint();
         centerLinePaint.setStrokeWidth(10.0f);
         centerLinePaint.setColor(Color.GREEN);
@@ -92,7 +59,7 @@ public class TunerPitchView extends View {
     }
 
     @Override
-    protected void onDraw(Canvas canvas){
+    protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
         //Draw midline
@@ -115,6 +82,38 @@ public class TunerPitchView extends View {
         height = h;
     }
 
+    //Sets current pitch on tuner
+    public void setTunerPitch(float pitch) {
+        this.currentPitch = pitch;
+        invalidate();
+    }
+
+    //Sets current pitch read from mic
+    public void setNewPitch(float newPitch) {
+
+        //Stop needle animation where it is (if in progress) and begin moving to new value
+        if (needleAnimation.isRunning()) {
+            setTunerPitch((float) needleAnimation.getAnimatedValue());
+
+            needleAnimation.end();
+           // setCurrentPitch((float) needleAnimation.getAnimatedValue());
+            Log.d(TAG, "ended animation");
+        }
+        needleAnimation = ValueAnimator.ofFloat(this.currentPitch, newPitch);
+        needleAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                setTunerPitch((float) valueAnimator.getAnimatedValue());
+                //Log.d(TAG, "Current pitch value: " + getCurrentPitch());
+
+            }
+        });
+        needleAnimation.start();
+        Log.d(TAG, "setNewPitch: started animation");
+
+        invalidate();
+    }
+
     //Sets note to tune to.
     //Input: MIDI VALUE of desired pitch
     public void setCenterPitch(float centerPitch) {
@@ -123,7 +122,7 @@ public class TunerPitchView extends View {
     }
 
     // Return MIDI note value as a float for current reference pitch
-    public float getCenterPitch(){
+    public float getCenterPitch() {
         return centerPitch;
     }
 }
