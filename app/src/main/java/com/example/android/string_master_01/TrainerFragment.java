@@ -82,6 +82,23 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
             }
         }
     };
+    private final ServiceConnection pdConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder service) {
+            pdService = ((PdService.PdBinder) service).getService();
+            try {
+                initPd();
+                loadPatch();
+            } catch (IOException e) {
+                Log.e(TAG, e.toString());
+                ((MainActivity) context).finish();
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+        }
+    };
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -115,6 +132,7 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
             }
         });
 
+        //Setup chosen string Spinner with string names
         chosenString = (Spinner) rootView.findViewById(R.id.string_choice);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
                 R.array.strings, android.R.layout.simple_spinner_dropdown_item);
@@ -133,24 +151,6 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
         resetGame();
         return rootView;
     }
-
-    private final ServiceConnection pdConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder service) {
-            pdService = ((PdService.PdBinder) service).getService();
-            try {
-                initPd();
-                loadPatch();
-            } catch (IOException e) {
-                Log.e(TAG, e.toString());
-                ((MainActivity) context).finish();
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-        }
-    };
 
     @Override
     public void onStart() {
@@ -180,6 +180,11 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
         }
     }
 
+    /**
+     *
+     *
+     * @throws IOException
+     */
     private void initPd() throws IOException {
         //Configure the audio glue
         int sampleRate = AudioParameters.suggestSampleRate();
@@ -260,8 +265,11 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
         startStopButton.setText("Start");
     }
 
+    /**
+     * If current score is greater than high score, or if no high score exists, save score as high
+     * score. If not high score do nothing.
+     */
     private void setHighScore() {
-        //If score when game is stopped is a new high score for this game length, save it
         String key = KEY_HIGH_SCORE+
                 ((MainActivity) context).getNumberOfFrets()+
                 '_'+

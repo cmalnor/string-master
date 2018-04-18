@@ -173,6 +173,12 @@ public class MainActivity extends AppCompatActivity {
         drawerToggle.onConfigurationChanged(newConfig);
     }
 
+    /**
+     * Setup navigation drawer onNavigationItemSelectedListener to check the selected item
+     * and try to load the associated fragment.
+     *
+     * @param navigationView
+     */
     private void setupDrawerContent(NavigationView navigationView) {
         navigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
@@ -194,6 +200,12 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Initialize fragment associated with selected nav drawer item. Will swap fragment if no
+     * permissions check is needed, otherwise will call permissions check which will handle swap.
+     *
+     * @param item  nav drawer item that was selected by user
+     */
     public void selectDrawerItem(MenuItem item) {
         Class fragmentClass;
         switch (item.getItemId()) {
@@ -228,6 +240,14 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Determines if appropriate permissions have been granted before switching fragment. If
+     * they have note been granted, requests access from user, and fragment switch is handled by
+     * onRequestPermissionsResult based on response. If permissions have been granted, swaps
+     * fragment.
+     *
+     * @param requestCode constant used to identify result of permissions request
+     */
     private void checkPermissions(int requestCode) {
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
@@ -241,6 +261,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Determines what to do based on user response to permissions request. Called when user
+     * responds to permissions request. If permission granted, swaps to fragment which requested
+     * the permission access. If permission denied, provides a toast to describe to the user why
+     * the feature has not loaded.
+     *
+     * @param requestCode constant used to identify the feature of the app which originated the
+     *                    permissions request
+     * @param permissions
+     * @param grantResults
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
@@ -273,6 +304,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Creates an instance of fragmentClass and replaces the current fragment with it.
+     *
+     * @param fragmentClass fragment class which will be instantiated and swapped to
+     */
     public void swapFragment(Class fragmentClass) {
         android.support.v4.app.Fragment fragment = null;
         try {
@@ -288,9 +324,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     Convert a note to a MIDI number by using the known MIDI number of the string the note was
-     played on
-     **/
+     * Convert a note to a MIDI number by using the known MIDI number of the string the note was
+     * played on.
+     *
+     * @param note the letter note which was played followed by the octave, ex. "A2"
+     * @param stringNotes map of notes available on the string to their MIDI values
+     * @return MIDI note value of played note
+     */
     public int getMIDINote(String note, Map<String, Integer> stringNotes) {
         int offset = 0;
         switch (stringNotes.entrySet().iterator().next().getKey()) {
@@ -317,6 +357,15 @@ public class MainActivity extends AppCompatActivity {
         return BASE_MIDI_NOTE + offset + stringNotes.get(note);
     }
 
+
+    /**
+     * Generate a map of the available notes to their MIDI values for a trainer instance based on
+     * settings and string selected.
+     *
+     * @param string the string which is being tested, ex. "E"
+     * @param octave the octave number of the string being tested, ex. 2
+     * @return LinkedHashMap of available notes and their MIDI values for trainer
+     */
     private Map<String, Integer> generateNotes(String string, int octave) {
         Map<String, Integer> output = new LinkedHashMap<>();
         int offset = -1;

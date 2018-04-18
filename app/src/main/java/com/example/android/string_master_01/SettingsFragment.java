@@ -60,6 +60,12 @@ public class SettingsFragment extends PreferenceFragmentCompat
         context = getActivity();
     }
 
+    /**
+     * When a shared preference is changed, update the corresponding views and activity variables.
+     *
+     * @param sharedPreferences
+     * @param key stored reference name for changed preference data
+     */
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         Log.d(TAG, "onSharedPreferenceChanged: ");
         if (key.equals(KEY_GAME_LENGTH)) {

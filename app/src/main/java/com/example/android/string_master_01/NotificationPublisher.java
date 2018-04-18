@@ -13,6 +13,12 @@ public class NotificationPublisher extends BroadcastReceiver {
     public static String notificationInstance = "notification";
     public static String notificationId = "id";
 
+    /**
+     * Upon receiving intent with notification and ID, call notify with given notification instance.
+     *
+     * @param context
+     * @param intent intent containing notification instance and ID
+     */
     public void onReceive(Context context, Intent intent) {
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
 

@@ -37,6 +37,9 @@ public class ClearScoresDialogPreference extends DialogPreference {
         return dialogLayoutResId;
     }
 
+    /**
+     * Erase all high score data.
+     */
     public void eraseScores() {
         Log.d(TAG, "eraseScores: Erasing scores!");
     }

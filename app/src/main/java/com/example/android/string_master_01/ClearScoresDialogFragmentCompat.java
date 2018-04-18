@@ -10,6 +10,11 @@ import android.support.v7.preference.PreferenceDialogFragmentCompat;
 
 public class ClearScoresDialogFragmentCompat extends PreferenceDialogFragmentCompat {
 
+    /**
+     * Class constructor.
+     * @param key
+     * @return      initialized fragment
+     */
     public static ClearScoresDialogFragmentCompat newInstance(String key) {
         final ClearScoresDialogFragmentCompat fragment = new ClearScoresDialogFragmentCompat();
         final Bundle b = new Bundle(1);
