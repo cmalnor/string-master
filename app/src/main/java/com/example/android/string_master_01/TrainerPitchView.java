@@ -5,7 +5,6 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 /**
@@ -73,7 +72,6 @@ public class TrainerPitchView extends View {
         canvas.drawRect(leftRect, leftPaint);
         canvas.drawRect(rightRect, rightPaint);
         canvas.drawRect(centerRect, centerPaint);
-        Log.d(TAG, "onDraw");
     }
 
     @Override

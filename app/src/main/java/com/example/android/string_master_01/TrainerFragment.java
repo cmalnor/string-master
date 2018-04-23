@@ -213,7 +213,7 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
                     noteCounter = 0;
                 }
                 pitchView.setNewPitch(x);
-                Log.d(TAG, "receiveFloat: " + noteCounter);
+                //Log.d(TAG, "receiveFloat: " + noteCounter);
             }
         });
     }
