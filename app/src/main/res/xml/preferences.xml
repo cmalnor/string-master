@@ -4,6 +4,7 @@
     xmlns:anrdoid="http://schemas.android.com/apk/res-auto"
     xmlns:app="http://schemas.android.com/tools"
     android:showDividers="none"
+    android:id="@+id/Settings_fragment"
     >
     <android.support.v7.preference.SeekBarPreference
         android:key="@string/com.example.string_master.SETTING_NUMBER_FRETS"

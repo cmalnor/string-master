@@ -184,7 +184,6 @@ public class MainActivity extends AppCompatActivity {
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                        item.setChecked(true);
                         selectDrawerItem(item);
                         return true;
                     }
@@ -207,37 +206,22 @@ public class MainActivity extends AppCompatActivity {
      * @param item  nav drawer item that was selected by user
      */
     public void selectDrawerItem(MenuItem item) {
-        Class fragmentClass;
         switch (item.getItemId()) {
             case R.id.nav_trainer:
-                fragmentClass = TrainerFragment.class;
+                checkPermissions(REQUEST_RECORD_AUDIO_PERMISSION_TRAINER);
                 break;
             case R.id.nav_tuner:
-                fragmentClass = TunerFragment.class;
+                checkPermissions(REQUEST_RECORD_AUDIO_PERMISSION_TUNER);
                 break;
             case R.id.nav_settings:
-                fragmentClass = SettingsFragment.class;
+                swapFragment(SettingsFragment.class);
                 break;
             default:
-                fragmentClass = TrainerFragment.class;
+                checkPermissions(REQUEST_RECORD_AUDIO_PERMISSION_TRAINER);
         }
-        if (fragmentClass == TrainerFragment.class) {
-            checkPermissions(REQUEST_RECORD_AUDIO_PERMISSION_TRAINER);
-        } else if (fragmentClass == TunerFragment.class) {
-            checkPermissions(REQUEST_RECORD_AUDIO_PERMISSION_TUNER);
-        } else {
-            swapFragment(fragmentClass);
-        }
-
-        //Highlight the selected item has been done by NavigationView
-        item.setChecked(true);
-
-        //Set action bar title
-        setTitle(item.getTitle());
 
         //Close the navigation drawer
         mDrawer.closeDrawers();
-
     }
 
     /**
@@ -311,16 +295,38 @@ public class MainActivity extends AppCompatActivity {
      */
     public void swapFragment(Class fragmentClass) {
         android.support.v4.app.Fragment fragment = null;
+        android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
+
         try {
             fragment = (android.support.v4.app.Fragment)fragmentClass.newInstance();
         } catch (Exception e) {
             e.printStackTrace();
+            return;
         }
 
         //Insert the fragment by replacing any existing fragment
-        android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.flContent, fragment).commit();
 
+        MenuItem navItem = null;
+        switch (fragment.getClass().getSimpleName()) {
+            case "TrainerFragment":
+                navItem = nvDrawer.getMenu().getItem(1);
+                break;
+            case "TunerFragment":
+                navItem = nvDrawer.getMenu().getItem(0);
+                break;
+            case "SettingsFragment":
+                navItem = nvDrawer.getMenu().getItem(2);
+                break;
+        }
+        if (navItem != null) {
+            //Highlight the selected item has been done by NavigationView
+            Log.d(TAG, "swapFragment: Tried to check");
+            navItem.setChecked(true);
+
+            //Set action bar title
+            setTitle(navItem.getTitle());
+        }
     }
 
     /**
