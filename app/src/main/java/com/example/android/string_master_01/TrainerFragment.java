@@ -34,6 +34,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import static android.content.Context.BIND_AUTO_CREATE;
 
@@ -73,11 +74,11 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
             counter--;
             if (counter == 0){
                 timeoutSound.start();
-                countdownView.setText(Integer.toString(counter));
+                countdownView.setText(timeConvert(counter));
                 stopGame();
             } else{
                 tickSound.start();
-                countdownView.setText(Integer.toString(counter));
+                countdownView.setText(timeConvert(counter));
                 noteHandler.postDelayed(this, 1000);
             }
         }
@@ -108,7 +109,7 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
         View rootView = inflater.inflate(R.layout.trainer_layout, container, false);
         context = getActivity();
 
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         KEY_HIGH_SCORE = getString(R.string.com_example_string_master_SETTING_HIGH_SCORE);
 
         countdownView = (TextView) rootView.findViewById(R.id.countdown);
@@ -122,9 +123,9 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
         startStopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (startStopButton.getText() == "Stop") {
+                if (startStopButton.getText() == getString(R.string.trainer_button_stop)) {
                     stopGame();
-                } else if (startStopButton.getText() == "Start") {
+                } else if (startStopButton.getText() == getString(R.string.trainer_button_start)) {
                     startGame();
                 } else {
                     resetGame();
@@ -134,7 +135,7 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
 
         //Setup chosen string Spinner with string names
         chosenString = (Spinner) rootView.findViewById(R.id.string_choice);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(context,
                 R.array.strings, android.R.layout.simple_spinner_dropdown_item);
         chosenString.setAdapter(adapter);
         chosenString.setOnItemSelectedListener(this);
@@ -235,7 +236,7 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
 
     private void startGame() {
         noteHandler.post(noteRunnable);
-        startStopButton.setText("Stop");
+        startStopButton.setText(getString(R.string.trainer_button_stop));
         getRandomNote();
         counter += 1;
         pdService.startAudio();
@@ -247,10 +248,9 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
 
     private void stopGame() {
         noteHandler.removeCallbacks(noteRunnable);
-        startStopButton.setText("Reset");
+        startStopButton.setText(getString(R.string.trainer_button_reset));
         pitchView.setNewPitch(-1);
         pdService.stopAudio();
-        chosenString.setEnabled(true);
         ((MainActivity) context).getWindow()
                 .clearFlags(WindowManager
                 .LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -259,10 +259,11 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
     private void resetGame() {
         score = 0;
         counter = ((MainActivity) context).getGameLength();
-        countdownView.setText(Integer.toString(counter));
-        assignedNote.setText("Tap 'Start' to Begin");
+        countdownView.setText(timeConvert(counter));
+        assignedNote.setText(getString(R.string.trainer_text_begin_instruction));
         scoreView.setText(Integer.toString(score));
-        startStopButton.setText("Start");
+        startStopButton.setText(R.string.trainer_button_start);
+        chosenString.setEnabled(true);
     }
 
     /**
@@ -322,6 +323,12 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
 
+    }
+
+    private String timeConvert(int seconds){
+        long min = TimeUnit.SECONDS.toMinutes(seconds);
+        long sec = seconds - TimeUnit.MINUTES.toSeconds(min);
+        return String.format("%01d:%02d", min, sec);
     }
 
     private void scorePoint() {

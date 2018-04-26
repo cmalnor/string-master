@@ -19,9 +19,13 @@
     <string name="text_clear_scores">Clear high scores</string>
     <string name="text_sharps">Include sharp notes</string>
     <string name="text_flats">Include flat notes</string>
+    <string name="trainer_text_begin_instruction">Tap \"START\" to Begin</string>
     <string name="trainer_text_selected_string">Selected guitar string: </string>
-    <string name="trainer_seconds_remaining">Seconds\nRemaining</string>
+    <string name="trainer_seconds_remaining">Time\nRemaining</string>
     <string name="trainer_text_score">Score</string>
+    <string name="trainer_button_start">START</string>
+    <string name="trainer_button_stop">STOP</string>
+    <string name="trainer_button_reset">RESET</string>
     <string name="dialog_clear_scores">Are you sure you want to permanently erase all high scores?</string>
     <string name="dialog_clear_scores_ok">Erase</string>
     <string name="dialog_clear_scores_cancel">Cancel</string>
