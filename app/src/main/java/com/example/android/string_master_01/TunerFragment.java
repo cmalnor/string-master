@@ -40,19 +40,6 @@ public class TunerFragment extends android.support.v4.app.Fragment {
     private Context context;
     private String[] notes = null;
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.tuner_layout, container, false);
-        initGui(rootView);
-        context = getActivity();
-
-        notes = ((MainActivity) context).getNOTES();
-
-        //Inflate the layout for this fragment
-        return rootView;
-    }
-
     private final ServiceConnection pdConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
@@ -70,6 +57,19 @@ public class TunerFragment extends android.support.v4.app.Fragment {
         public void onServiceDisconnected(ComponentName componentName) {
         }
     };
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.tuner_layout, container, false);
+        initGui(rootView);
+        context = getActivity();
+
+        notes = ((MainActivity) context).getNOTES();
+
+        //Inflate the layout for this fragment
+        return rootView;
+    }
 
     @Override
     public void onStart() {
@@ -99,6 +99,12 @@ public class TunerFragment extends android.support.v4.app.Fragment {
         note.setText("A");
     }
 
+    /**
+     * Initialize audio receiving through PD and add listener to handle received data. Listener
+     * receives MIDI note as float through PD patch and updates tuner with new value.
+     *
+     * @throws IOException
+     */
     private void initPd() throws IOException {
         //Configure the audio glue
         int sampleRate = AudioParameters.suggestSampleRate();
@@ -115,13 +121,18 @@ public class TunerFragment extends android.support.v4.app.Fragment {
             public void receiveFloat(String source, float x) {
                 if (x > 30) {
                     findClosestString(x);
-                    //Log.i(TAG, "pitch: " + x);
-                    pitchView.setNewPitch(x);
+                    Log.i(TAG, "pitch: " + x);
+                    pitchView.setNewTunerPitch(x);
                 }
             }
         });
     }
 
+    /**
+     * Load specified PD patch by extracting and opening raw resource.
+     *
+     * @throws IOException
+     */
     private void loadPatch() throws IOException {
         File dir = getActivity().getFilesDir();
         IoUtils.extractZipResource(
@@ -130,8 +141,14 @@ public class TunerFragment extends android.support.v4.app.Fragment {
         PdBase.openPatch(patchFile.getAbsolutePath());
     }
 
-    public void findClosestString(float x) {
-        float midiNote = Math.round(x);
+    /**
+     * Locate the closest legitimate guitar note to the current pitch and then draw the new center
+     * note and user note.
+     *
+     * @param userPitch MIDI value of pitch read from PD patch
+     */
+    public void findClosestString(float userPitch) {
+        float midiNote = Math.round(userPitch);
         int noteOffset = (int) midiNote - 40;
         if (pitchView.getCenterPitch() != midiNote) {
             if (midiNote < 40) {

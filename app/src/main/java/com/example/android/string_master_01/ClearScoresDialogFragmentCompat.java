@@ -12,7 +12,7 @@ public class ClearScoresDialogFragmentCompat extends PreferenceDialogFragmentCom
 
     /**
      * Class constructor.
-     * @param key
+     * @param key   String to identify which preference created dialog
      * @return      initialized fragment
      */
     public static ClearScoresDialogFragmentCompat newInstance(String key) {

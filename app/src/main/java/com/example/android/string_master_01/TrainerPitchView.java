@@ -35,6 +35,9 @@ public class TrainerPitchView extends View {
         init();
     }
 
+    /**
+     * Initialize pitch indicator rectangles for trainer
+     */
     private void init() {
         leftPaint = new Paint();
         leftPaint.setStyle(Paint.Style.FILL);
@@ -82,8 +85,13 @@ public class TrainerPitchView extends View {
         init();
     }
 
+    /**
+     * Update colors of rectangles based on pitch comparison.
+     *
+     * @param newPitch latest pitch received from PD patch
+     */
     public void setNewPitch(float newPitch) {
-        if (newPitch > getCenterPitch()-1 && newPitch < getCenterPitch()+1) {
+        if (newPitch > getCenterPitch()-0.5 && newPitch < getCenterPitch()+0.5) {
             rightPaint.setColor(getResources().getColor(R.color.sidePaintOff));
             centerPaint.setColor(getResources().getColor(R.color.centerPaintOn));
             leftPaint.setColor(getResources().getColor(R.color.sidePaintOff));
@@ -91,7 +99,7 @@ public class TrainerPitchView extends View {
             rightPaint.setColor(getResources().getColor(R.color.sidePaintOff));
             centerPaint.setColor(getResources().getColor(R.color.centerPaintOff));
             leftPaint.setColor(getResources().getColor(R.color.sidePaintOff));
-        } else if (newPitch < getCenterPitch()-1) {
+        } else if (newPitch < getCenterPitch()-0.5) {
             rightPaint.setColor(getResources().getColor(R.color.sidePaintOff));
             centerPaint.setColor(getResources().getColor(R.color.centerPaintOff));
             leftPaint.setColor(getResources().getColor(R.color.sidePaintOn));
@@ -103,14 +111,18 @@ public class TrainerPitchView extends View {
         invalidate();
     }
 
-    //Sets note to tune to.
-    //Input: MIDI VALUE of desired pitch
+    /**
+     * Set note that the user needs to try and play
+     * @param centerPitch
+     */
     public void setCenterPitch(float centerPitch) {
         this.centerPitch = centerPitch;
         invalidate();
     }
 
-    // Return MIDI note value as a float for current reference pitch
+    /**
+     * Return MIDI note value as a float for current reference pitch
+     */
     public float getCenterPitch() {
         return centerPitch;
     }

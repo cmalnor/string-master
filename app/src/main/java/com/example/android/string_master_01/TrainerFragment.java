@@ -68,6 +68,10 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
     private int counter = 0;
     private int score = 0;
     private TextView scoreView;
+
+    /**
+     * Create runnable to perform clock countdown every second.
+     */
     private Runnable noteRunnable = new Runnable() {
         @Override
         public void run() {
@@ -83,6 +87,7 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
             }
         }
     };
+
     private final ServiceConnection pdConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
@@ -156,7 +161,10 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
     @Override
     public void onStart() {
         super.onStart();
-        context.bindService(new Intent(context, PdService.class), pdConnection, BIND_AUTO_CREATE);
+        context.bindService(new Intent(context,
+                PdService.class),
+                pdConnection,
+                BIND_AUTO_CREATE);
     }
 
     @Override
@@ -182,7 +190,9 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
     }
 
     /**
-     *
+     * Initialize audio receiving through PD and add listener to handle received data. Listener
+     * receives MIDI note as float through PD patch which is compared to desired pitch. Trainer is
+     * updated according to result of pitch comparison.
      *
      * @throws IOException
      */
@@ -196,6 +206,7 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
         dispatcher = new PdUiDispatcher();
         PdBase.setReceiver(dispatcher);
 
+        //Add listener to receive data from PD patch and update trainer accordingly
         dispatcher.addListener("pitch", new PdListener.Adapter() {
             @Override
             public void receiveFloat(String source, float x) {
@@ -219,6 +230,11 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
         });
     }
 
+    /**
+     * Load specified PD patch by extracting and opening raw resource.
+     *
+     * @throws IOException
+     */
     private void loadPatch() throws IOException {
         File dir = context.getFilesDir();
         IoUtils.extractZipResource(
@@ -227,6 +243,9 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
         PdBase.openPatch(patchFile.getAbsolutePath());
     }
 
+    /**
+     * Select a new random note from available notes and set it as current center pitch.
+     */
     private void getRandomNote() {
         int nextNoteOffset = rand.nextInt(notes.size());
         String nextNote = notes.keySet().toArray()[nextNoteOffset].toString();
@@ -290,6 +309,14 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
         }
     }
 
+    /**
+     * When a string to test is selected, update the available notes for the trainer.
+     *
+     * @param parent
+     * @param view
+     * @param pos
+     * @param id
+     */
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
         Log.d(TAG, "onItemSelected: " + parent.getItemAtPosition(pos));
@@ -325,6 +352,12 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
 
     }
 
+    /**
+     * Convert given number of seconds to clock format for game timer.
+     *
+     * @param seconds Game length in seconds
+     * @return String of current game time in a clock format
+     */
     private String timeConvert(int seconds){
         long min = TimeUnit.SECONDS.toMinutes(seconds);
         long sec = seconds - TimeUnit.MINUTES.toSeconds(min);

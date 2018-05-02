@@ -6,7 +6,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 /**
@@ -39,6 +38,9 @@ public class TunerPitchView extends View {
         init();
     }
 
+    /**
+     * Initialize line properties and setup needle movement animation.
+     */
     private void init() {
         centerLinePaint = new Paint();
         centerLinePaint.setStrokeWidth(10.0f);
@@ -58,6 +60,11 @@ public class TunerPitchView extends View {
         });
     }
 
+    /**
+     * Draw green midline which represents desired pitch, followed by blue line which represents
+     * the pitch of the currently played note.
+     * @param canvas
+     */
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -82,14 +89,23 @@ public class TunerPitchView extends View {
         height = h;
     }
 
-    //Sets current pitch on tuner
+    /**
+     * Sets current user pitch on tuner.
+     *
+     * @param pitch MIDI value of user pitch on tuner
+     */
     public void setTunerPitch(float pitch) {
         this.currentPitch = pitch;
         invalidate();
     }
 
-    //Sets current pitch read from mic
-    public void setNewPitch(float newPitch) {
+    /**
+     * Sets current pitch read from PD patch and animates the movement of the needle to this new
+     * position.
+     *
+     * @param newPitch MIDI value of new pitch read in from PD patch
+     */
+    public void setNewTunerPitch(float newPitch) {
 
         //Stop needle animation where it is (if in progress) and begin moving to new value
         if (needleAnimation.isRunning()) {
@@ -97,7 +113,7 @@ public class TunerPitchView extends View {
 
             needleAnimation.end();
            // setCurrentPitch((float) needleAnimation.getAnimatedValue());
-            Log.d(TAG, "ended animation");
+           // Log.d(TAG, "ended animation");
         }
         needleAnimation = ValueAnimator.ofFloat(this.currentPitch, newPitch);
         needleAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -109,19 +125,21 @@ public class TunerPitchView extends View {
             }
         });
         needleAnimation.start();
-        Log.d(TAG, "setNewPitch: started animation");
+        //Log.d(TAG, "setNewPitch: started animation");
 
         invalidate();
     }
 
-    //Sets note to tune to.
-    //Input: MIDI VALUE of desired pitch
+    /**
+     * Sets current center pitch on tuner.
+     *
+     * @param centerPitch MIDI value of center pitch on tuner
+     */
     public void setCenterPitch(float centerPitch) {
         this.centerPitch = centerPitch;
         invalidate();
     }
 
-    // Return MIDI note value as a float for current reference pitch
     public float getCenterPitch() {
         return centerPitch;
     }

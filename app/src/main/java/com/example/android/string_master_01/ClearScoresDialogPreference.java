@@ -15,11 +15,10 @@ public class ClearScoresDialogPreference extends DialogPreference {
 
     private static final String TAG = "ClearScoresPref";
 
-    private int dialogLayoutResId = R.layout.clear_scores_dialog_pref;
+    private int dialogLayoutResId;
     private SharedPreferences sharedPreferences;
     private String KEY_GAME_LENGTH;
     private String KEY_NUMBER_FRETS;
-    private String KEY_HIGH_SCORE;
     private String KEY_SHARPS;
     private String KEY_FLATS;
 
@@ -35,7 +34,7 @@ public class ClearScoresDialogPreference extends DialogPreference {
         this(context, attrs, defStyleAttr, defStyleAttr);
     }
 
-    public  ClearScoresDialogPreference(Context context, AttributeSet attrs, int defStyleAttr,
+    public ClearScoresDialogPreference(Context context, AttributeSet attrs, int defStyleAttr,
                                         int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
@@ -45,6 +44,7 @@ public class ClearScoresDialogPreference extends DialogPreference {
         KEY_SHARPS = context.getString(R.string.com_example_string_master_SETTING_SHARPS);
         KEY_FLATS = context.getString(R.string.com_example_string_master_SETTING_FLATS);
 
+        dialogLayoutResId = R.layout.clear_scores_dialog_pref;
     }
 
     @Override

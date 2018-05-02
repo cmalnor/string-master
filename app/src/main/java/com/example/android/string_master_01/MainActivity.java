@@ -101,56 +101,14 @@ public class MainActivity extends AppCompatActivity {
                         true);
 
         //Setup notification channel if running Oreo+
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // Create the NotificationChannel, but only on API 26+ because
-            // the NotificationChannel class is new and not in the support library
-            CharSequence name = getString(R.string.channel_name);
-            String description = getString(R.string.channel_description);
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
-            channel.setDescription(description);
-
-            // Register the channel with the system
-            NotificationManager notificationManager = (NotificationManager) this
-                    .getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.createNotificationChannel(channel);
-        }
+        setupNotificationChannel();
 
         //Setup builder, default appearance, and action for notification
-        Intent mainActivityIntent = new Intent(this, MainActivity.class);
-        PendingIntent pendingMainActivityIntent = PendingIntent.getActivity(
-                this,
-                0,
-                mainActivityIntent,
-                0);
-        mBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_guitar_acoustic)
-                .setContentTitle(getString(R.string.app_name))
-                .setContentText(getString(R.string.notification_text))
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setContentIntent(pendingMainActivityIntent)
-                .setAutoCancel(true);
+        PendingIntent pendingNotificationIntent = setupNotification(getString(R.string.app_name),
+                getString(R.string.notification_text));
 
-        Intent notificationIntent = new Intent(this, NotificationPublisher.class);
-        notificationIntent.putExtra(NotificationPublisher.notificationInstance, mBuilder.build());
-        notificationIntent.putExtra(NotificationPublisher.notificationId, 1);
-        PendingIntent pendingNotificationIntent = PendingIntent.getBroadcast(
-                this,
-                0,
-                notificationIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
-
-        //Setup daily reminder notification
-        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        alarmManager.cancel(pendingNotificationIntent);
-        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                SystemClock.elapsedRealtime() + AlarmManager.INTERVAL_FIFTEEN_MINUTES,
-                //SystemClock.elapsedRealtime(),
-                AlarmManager.INTERVAL_FIFTEEN_MINUTES,
-                //6000,
-                pendingNotificationIntent);
-
-
+        //Start repeating notification to remind the user to train daily
+        repeatNotification(AlarmManager.INTERVAL_FIFTEEN_MINUTES, pendingNotificationIntent);
     }
 
     @Override
@@ -216,8 +174,6 @@ public class MainActivity extends AppCompatActivity {
             case R.id.nav_settings:
                 swapFragment(SettingsFragment.class);
                 break;
-            default:
-                checkPermissions(REQUEST_RECORD_AUDIO_PERMISSION_TRAINER);
         }
 
         //Close the navigation drawer
@@ -289,7 +245,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Creates an instance of fragmentClass and replaces the current fragment with it.
+     * Creates an instance of fragmentClass and replaces the current fragment with it. Also sets the
+     * action bar title and navigation bar selected item.
      *
      * @param fragmentClass fragment class which will be instantiated and swapped to
      */
@@ -316,6 +273,7 @@ public class MainActivity extends AppCompatActivity {
                 navItem = nvDrawer.getMenu().getItem(0);
                 break;
             case "SettingsFragment":
+                Log.d(TAG, "swapFragment: Settings");
                 navItem = nvDrawer.getMenu().getItem(2);
                 break;
         }
@@ -338,29 +296,8 @@ public class MainActivity extends AppCompatActivity {
      * @return MIDI note value of played note
      */
     public int getMIDINote(String note, Map<String, Integer> stringNotes) {
-        int offset = 0;
-        switch (stringNotes.entrySet().iterator().next().getKey()) {
-            case "E2":
-                offset = LOW_E_OFFSET;
-                break;
-            case "A2":
-                offset = A_OFFSET;
-                break;
-            case "D3":
-                offset = D_OFFSET;
-                break;
-            case "G3":
-                offset = G_OFFSET;
-                break;
-            case "B3":
-                offset = B_OFFSET;
-                break;
-            case "E4":
-                offset = HIGH_E_OFFSET;
-                break;
-        }
-        Log.d(TAG, "getMIDINote: " + (BASE_MIDI_NOTE + offset + stringNotes.get(note)));
-        return BASE_MIDI_NOTE + offset + stringNotes.get(note);
+        Log.d(TAG, "getMIDINote: " + (BASE_MIDI_NOTE + stringNotes.get(note)));
+        return BASE_MIDI_NOTE + stringNotes.get(note);
     }
 
 
@@ -370,13 +307,14 @@ public class MainActivity extends AppCompatActivity {
      *
      * @param string the string which is being tested, ex. "E"
      * @param octave the octave number of the string being tested, ex. 2
+     * @param stringOffset the base MIDI offset value for the selected string
      * @return LinkedHashMap of available notes and their MIDI values for trainer
      */
-    private Map<String, Integer> generateNotes(String string, int octave) {
+    private Map<String, Integer> generateNotes(String string, int octave, int stringOffset) {
         Map<String, Integer> output = new LinkedHashMap<>();
         int offset = -1;
         for (int i = 0; i < NOTE_LETTERS.length; i++) {
-            if (NOTE_LETTERS[i] == string) {
+            if (NOTE_LETTERS[i].equals(string)) {
                 offset = i;
                 break;
             }
@@ -385,16 +323,16 @@ public class MainActivity extends AppCompatActivity {
             return null;
         }
         for (int i = 0; i < numberOfFrets; i++) {
-            output.put(NOTE_LETTERS[offset] + octave, i);
-            if (NOTE_LETTERS[offset] != "E" && NOTE_LETTERS[offset] != "B") {
+            output.put(NOTE_LETTERS[offset] + octave, i + stringOffset);
+            if (!NOTE_LETTERS[offset].equals("E") && !NOTE_LETTERS[offset].equals("B")) {
                 //Number of frets counts a flat/sharp pair as one note
                 i++;
                 if (i < numberOfFrets) {
                     if (sharps) {
-                        output.put(NOTE_LETTERS[offset] + "#" + octave, i);
+                        output.put(NOTE_LETTERS[offset] + "#" + octave, i + stringOffset);
                     }
                     if (flats) {
-                        output.put(NOTE_LETTERS[offset+1] + "b" + octave, i);
+                        output.put(NOTE_LETTERS[offset+1] + "b" + octave, i + stringOffset);
                     }
                 }
             }
@@ -412,28 +350,101 @@ public class MainActivity extends AppCompatActivity {
         return output;
     }
 
+    /**
+     * Setup repeating notification with given interval.
+     *
+     * @param interval Time, in milliseconds, to repeat notification display
+     * @param pendingNotificationIntent PendingIntent which contains the built notification to be
+     *                                  displayed
+     */
+    private void repeatNotification(long interval, PendingIntent pendingNotificationIntent) {
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        try {
+            alarmManager.cancel(pendingNotificationIntent);
+        } catch (NullPointerException e) {
+            Log.d(TAG, "repeatNotification: No pending intents to cancel");
+        }
+        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                SystemClock.elapsedRealtime() + AlarmManager.INTERVAL_FIFTEEN_MINUTES,
+                //SystemClock.elapsedRealtime(),
+                interval,
+                pendingNotificationIntent);
+    }
+
+    /**
+     * Setup notification channel if running Oreo+. Only on API 26+ because the NotificationChannel
+     * class is new and not in the support library.
+     */
+    private void setupNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+
+            // Register the channel with the system
+            NotificationManager notificationManager = (NotificationManager) this
+                    .getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+    /**
+     * Setup a PendingIntent with a built notification attached that uses the text parameters
+     * provided.
+     *
+     * @param title Title of the created notification
+     * @param text  Body text of the created notification
+     * @return
+     */
+    private PendingIntent setupNotification(String title, String text) {
+        Intent mainActivityIntent = new Intent(this, MainActivity.class);
+        PendingIntent pendingMainActivityIntent = PendingIntent.getActivity(
+                this,
+                0,
+                mainActivityIntent,
+                0);
+        mBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_guitar_acoustic)
+                .setContentTitle(title)
+                .setContentText(text)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setContentIntent(pendingMainActivityIntent)
+                .setAutoCancel(true);
+
+        Intent notificationIntent = new Intent(this, NotificationPublisher.class);
+        notificationIntent.putExtra(NotificationPublisher.notificationInstance, mBuilder.build());
+        notificationIntent.putExtra(NotificationPublisher.notificationId, 1);
+        return PendingIntent.getBroadcast(
+                this,
+                0,
+                notificationIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
     public Map<String, Integer> getLowENotes() {
-        return generateNotes("E", 2);
+        return generateNotes("E", 2, LOW_E_OFFSET);
     }
 
     public Map<String, Integer> getANotes() {
-        return generateNotes("A", 2);
+        return generateNotes("A", 2, A_OFFSET);
     }
 
     public Map<String, Integer> getDNotes() {
-        return generateNotes("D", 3);
+        return generateNotes("D", 3, D_OFFSET);
     }
 
     public Map<String, Integer> getGNotes() {
-        return generateNotes("G", 3);
+        return generateNotes("G", 3, G_OFFSET);
     }
 
     public Map<String, Integer> getBNotes() {
-        return generateNotes("B", 3);
+        return generateNotes("B", 3, B_OFFSET);
     }
 
     public Map<String, Integer> getHighENotes() {
-        return generateNotes("E", 4);
+        return generateNotes("E", 4, HIGH_E_OFFSET);
     }
 
     public int getGameLength() {

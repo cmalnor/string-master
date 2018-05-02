@@ -19,28 +19,22 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
     private static final String TAG = "SettingsFragment";
 
-    private int numberOfNotes;
     private int numberOfFrets;
     private SharedPreferences sharedPreferences;
     private int gameLength;
     private String KEY_GAME_LENGTH;
     private String KEY_NUMBER_FRETS;
-    private String KEY_HIGH_SCORE;
     private String KEY_SHARPS;
     private String KEY_FLATS;
-    private boolean sharps;
-    private boolean flats;
     private Context context;
     private android.support.v7.preference.SeekBarPreference fretsSeekBar;
     private android.support.v7.preference.SeekBarPreference timeSeekBar;
-    private android.support.v7.preference.Preference clearScoresDialog;
 
     @Override
     public void onCreatePreferences(Bundle bundle, String s) {
         addPreferencesFromResource(R.xml.preferences);
         KEY_NUMBER_FRETS = getString(R.string.com_example_string_master_SETTING_NUMBER_FRETS);
         KEY_GAME_LENGTH = getString(R.string.com_example_string_master_SETTING_GAME_LENGTH);
-        KEY_HIGH_SCORE = getString(R.string.com_example_string_master_SETTING_CLEAR_SCORES);
         KEY_SHARPS = getString(R.string.com_example_string_master_SETTING_SHARPS);
         KEY_FLATS = getString(R.string.com_example_string_master_SETTING_FLATS);
 
@@ -53,9 +47,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
         timeSeekBar = (SeekBarPreference) findPreference(KEY_GAME_LENGTH);
         gameLength = (sharedPreferences.getInt(KEY_GAME_LENGTH, 0)+1)*30;
         timeSeekBar.setTitle(getString(R.string.text_game_length, gameLength));
-
-        numberOfNotes = ((MainActivity) getActivity()).getNOTES().length;
-
 
         context = getActivity();
     }
@@ -83,12 +74,12 @@ public class SettingsFragment extends PreferenceFragmentCompat
         } else if (key.equals(KEY_SHARPS)) {
 
             //include sharps in note list
-            sharps = sharedPreferences.getBoolean(KEY_SHARPS, true);
+            boolean sharps = sharedPreferences.getBoolean(KEY_SHARPS, true);
             ((MainActivity) context).setSharps(sharps);
         } else if (key.equals(KEY_FLATS)) {
 
             //include flats in note list
-            flats = sharedPreferences.getBoolean(KEY_FLATS, true);
+            boolean flats = sharedPreferences.getBoolean(KEY_FLATS, true);
             ((MainActivity) context).setFlats(flats);
         }
     }
@@ -107,6 +98,12 @@ public class SettingsFragment extends PreferenceFragmentCompat
                 .unregisterOnSharedPreferenceChangeListener(this);
     }
 
+    /**
+     * If a ClearScoresDialogPreference tries to display a dialog, specify
+     * ClearScoresDialogFragmentCompat. Otherwise call super and display normal dialog.
+     *
+     * @param preference Preference trying to display a dialog
+     */
     @Override
     public void onDisplayPreferenceDialog(Preference preference) {
         DialogFragment dialogFragment = null;
@@ -115,7 +112,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
         }
         if (dialogFragment != null) {
             dialogFragment.setTargetFragment(this, 0);
-            dialogFragment.show(this.getFragmentManager(),
+            dialogFragment.show(getFragmentManager(),
                     "android.support.v7.preference" + ".PreferenceFragment.DIALOG");
         } else {
             super.onDisplayPreferenceDialog(preference);
