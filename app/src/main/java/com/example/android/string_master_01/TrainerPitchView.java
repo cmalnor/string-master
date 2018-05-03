@@ -18,7 +18,6 @@ public class TrainerPitchView extends View {
     private Paint centerPaint;
     private Paint leftPaint;
     private Paint rightPaint;
-    private int padding;
     private Rect leftRect;
     private Rect rightRect;
     private Rect centerRect;

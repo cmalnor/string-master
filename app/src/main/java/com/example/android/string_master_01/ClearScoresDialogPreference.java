@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.support.v7.preference.DialogPreference;
 import android.support.v7.preference.PreferenceManager;
 import android.util.AttributeSet;
-import android.util.Log;
 
 /**
  * Created by codymalnor on 3/20/18.
@@ -57,7 +56,6 @@ public class ClearScoresDialogPreference extends DialogPreference {
      * values, and then putting non-score values back.
      */
     public void eraseScores() {
-        Log.d(TAG, "eraseScores: Erasing scores!");
         boolean sharps = sharedPreferences.getBoolean(KEY_SHARPS, true);
         boolean flats = sharedPreferences.getBoolean(KEY_FLATS, true);
         int numberOfFrets = sharedPreferences.getInt(KEY_NUMBER_FRETS, 21);

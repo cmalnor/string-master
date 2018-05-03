@@ -273,13 +273,11 @@ public class MainActivity extends AppCompatActivity {
                 navItem = nvDrawer.getMenu().getItem(0);
                 break;
             case "SettingsFragment":
-                Log.d(TAG, "swapFragment: Settings");
                 navItem = nvDrawer.getMenu().getItem(2);
                 break;
         }
         if (navItem != null) {
             //Highlight the selected item has been done by NavigationView
-            Log.d(TAG, "swapFragment: Tried to check");
             navItem.setChecked(true);
 
             //Set action bar title

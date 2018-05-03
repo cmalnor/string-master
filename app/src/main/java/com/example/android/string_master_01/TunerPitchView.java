@@ -54,7 +54,6 @@ public class TunerPitchView extends View {
         needleAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                //Log.d(TAG, "Current pitch value: " + getCurrentPitch());
                 setTunerPitch((float) valueAnimator.getAnimatedValue());
             }
         });
@@ -113,19 +112,16 @@ public class TunerPitchView extends View {
 
             needleAnimation.end();
            // setCurrentPitch((float) needleAnimation.getAnimatedValue());
-           // Log.d(TAG, "ended animation");
         }
         needleAnimation = ValueAnimator.ofFloat(this.currentPitch, newPitch);
         needleAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
                 setTunerPitch((float) valueAnimator.getAnimatedValue());
-                //Log.d(TAG, "Current pitch value: " + getCurrentPitch());
 
             }
         });
         needleAnimation.start();
-        //Log.d(TAG, "setNewPitch: started animation");
 
         invalidate();
     }

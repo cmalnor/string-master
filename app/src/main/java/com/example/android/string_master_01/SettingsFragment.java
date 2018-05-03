@@ -8,7 +8,6 @@ import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.preference.SeekBarPreference;
-import android.util.Log;
 
 /**
  * Created by codymalnor on 2/20/18.
@@ -58,7 +57,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
      * @param key stored reference name for changed preference data
      */
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        Log.d(TAG, "onSharedPreferenceChanged: ");
         if (key.equals(KEY_GAME_LENGTH)) {
 
             //length of game in increments of 30s: 0-240s

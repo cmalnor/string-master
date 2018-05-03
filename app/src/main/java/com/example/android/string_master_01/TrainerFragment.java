@@ -210,7 +210,7 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
         dispatcher.addListener("pitch", new PdListener.Adapter() {
             @Override
             public void receiveFloat(String source, float x) {
-                Log.i(TAG, "pitch: " + x);
+                //Log.i(TAG, "pitch: " + x);
                 if (noteCounter > 1) {
                     correctSound.start();
                     scorePoint();
@@ -225,7 +225,6 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
                     noteCounter = 0;
                 }
                 pitchView.setNewPitch(x);
-                //Log.d(TAG, "receiveFloat: " + noteCounter);
             }
         });
     }
@@ -319,7 +318,6 @@ public class TrainerFragment extends Fragment implements AdapterView.OnItemSelec
      */
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-        Log.d(TAG, "onItemSelected: " + parent.getItemAtPosition(pos));
         selectedString = pos;
         setHighScore();
         switch (pos) {
