@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
                 getString(R.string.notification_text));
 
         //Start repeating notification to remind the user to train daily
-        repeatNotification(AlarmManager.INTERVAL_FIFTEEN_MINUTES, pendingNotificationIntent);
+        repeatNotification(1000, pendingNotificationIntent);
     }
 
     @Override
@@ -365,7 +365,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "repeatNotification: No pending intents to cancel");
         }
         alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                SystemClock.elapsedRealtime() + AlarmManager.INTERVAL_FIFTEEN_MINUTES,
+                SystemClock.elapsedRealtime(),
                 //SystemClock.elapsedRealtime(),
                 interval,
                 pendingNotificationIntent);
@@ -400,11 +400,13 @@ public class MainActivity extends AppCompatActivity {
      */
     private PendingIntent setupNotification(String title, String text) {
         Intent mainActivityIntent = new Intent(this, MainActivity.class);
+        mainActivityIntent.setAction("android.intent.action.MAIN");
+        mainActivityIntent.addCategory("android.intent.category.LAUNCHER");
         PendingIntent pendingMainActivityIntent = PendingIntent.getActivity(
                 this,
                 0,
                 mainActivityIntent,
-                0);
+                PendingIntent.FLAG_UPDATE_CURRENT);
         mBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_guitar_acoustic)
                 .setContentTitle(title)
